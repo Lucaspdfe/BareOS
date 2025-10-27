@@ -12,6 +12,6 @@ Q: Why suffer with what is the hell of OSDev?   A: I don't know, got tired of we
 
 Q: Why BareOS?                                  A: It's the combination between Barebones and OS (Operating System), pretty explanatory.
 
-Q: How do I test?                               A: Every release, there will be a HDD (.img) image you can boot using a virtual machine or even in a real computer.
+Q: How do I test?                               A: Every release, there will be a FLP (.img) image you can boot using a virtual machine or even in a real computer.
 
 Q: Will you keep it real hardware friendly?     A: I will try to do so. Not guaranteeing.
