@@ -31,7 +31,7 @@ $(IMAGE): $(STAGE1) $(STAGE2) | build
 	@echo "[*] Creating floppy disk image..."
 	@dd if=/dev/zero of=$@ bs=512 count=2880
 
-	@echo "[*] Creating FAT16 filesystem..."
+	@echo "[*] Creating FAT12 filesystem..."
 	@mkfs.fat -F 12 -n "BARE OS" $@
 
 	@echo "[*] Writing bootloader to MBR..."

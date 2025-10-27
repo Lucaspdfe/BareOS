@@ -18,7 +18,7 @@ bdb_reserved_sectors:       dw 1
 bdb_fat_count:              db 2
 bdb_dir_entries_count:      dw 0E0h
 bdb_total_sectors:          dw 2880                 ; 2880 * 512 = 1.44MB
-bdb_media_descriptor_type:  db 0F8h                 ; F8 = HDD
+bdb_media_descriptor_type:  db 0F0h                 ; F0 = 3.5" floppy disk (actually an hdd according to qemu, but ignore this.)
 bdb_sectors_per_fat:        dw 9                    ; 9 sectors/fat
 bdb_sectors_per_track:      dw 18
 bdb_heads:                  dw 2
