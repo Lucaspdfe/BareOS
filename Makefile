@@ -16,14 +16,15 @@ all: clean $(IMAGE)
 # Build the bootloader binary
 BOOTLOADER: $(STAGE1) $(STAGE2)
 
-$(STAGE1): src/stage1/boot.asm | build
+$(STAGE1): build
 	@echo "[*] Assembling stage1..."
-	@$(NASM) $(NASMFLAGS) $< -o $@
+	@$(MAKE) -C src/bootloader/stage1 BUILD=$(abspath build/) --no-print-directory
 	@echo "[+] Created $@."
 
-$(STAGE2): src/stage2/main.asm | build
+$(STAGE2): build
 	@echo "[*] Assembling stage2..."
-	@$(NASM) $(NASMFLAGS) $< -o $@
+	@$(MAKE) -C src/bootloader/stage2 BUILD=$(abspath build/) --no-print-directory
+	@cp build/stage2.bin $@
 	@echo "[+] Created $@."
 
 # Create the HDD image
@@ -42,6 +43,7 @@ $(IMAGE): $(STAGE1) $(STAGE2) | build
 	@mcopy -i $@ temp_root/* ::
 
 	@echo "[+] HDD image ready: $@"
+	@rm -rf temp_root
 
 # Ensure build directory exists
 build:
