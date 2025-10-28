@@ -14,4 +14,8 @@ Q: Why BareOS?                                  A: It's the combination between 
 
 Q: How do I test?                               A: Every release, there will be a FLP (.img) image you can boot using a virtual machine or even in a real computer.
 
+Q: How do I compile?                            A: I will start making compiling guides on BUILD.md.
+
 Q: Will you keep it real hardware friendly?     A: I will try to do so. Not guaranteeing.
+
+WARNING: THIS CURRENT CODE IS NOT WORKING!!!!
