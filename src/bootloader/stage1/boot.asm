@@ -18,7 +18,7 @@ bdb_reserved_sectors:       dw 1
 bdb_fat_count:              db 2
 bdb_dir_entries_count:      dw 0E0h
 bdb_total_sectors:          dw 2880                 ; 2880 * 512 = 1.44MB
-bdb_media_descriptor_type:  db 0F0h                 ; F0 = 3.5" floppy disk (actually an hdd according to qemu, but ignore this.)
+bdb_media_descriptor_type:  db 0F0h                 ; F0 = 3.5" floppy disk
 bdb_sectors_per_fat:        dw 9                    ; 9 sectors/fat
 bdb_sectors_per_track:      dw 18
 bdb_heads:                  dw 2
@@ -26,11 +26,11 @@ bdb_hidden_sectors:         dd 0
 bdb_large_sector_count:     dd 0
 
 ; extended boot record
-ebr_drive_number:           db 0x80                 ; 0x00 floppy, 0x80 hdd, useless
+ebr_drive_number:           db 0                    ; 0x00 floppy, 0x80 hdd, useless
                             db 0                    ; reserved
 ebr_signature:              db 29h
 ebr_volume_id:              db 12h, 34h, 56h, 78h   ; serial number, value doesn't matter
-ebr_volume_label:           db 'BARE OS    '        ; 11 bytes, padded with spaces
+ebr_volume_label:           db 'TUTU OS    '        ; 11 bytes, padded with spaces
 ebr_system_id:              db 'FAT12   '           ; 8 bytes
 
 ;
@@ -140,9 +140,9 @@ start:
     call disk_read
 
     ; read kernel and process FAT chain
-    mov bx, KERNEL_LOAD_SEGMENT
+    mov bx, STAGE2_LOAD_SEGMENT
     mov es, bx
-    mov bx, KERNEL_LOAD_OFFSET
+    mov bx, STAGE2_LOAD_OFFSET
 
 .load_kernel_loop:
     
@@ -191,11 +191,11 @@ start:
     ; jump to our kernel
     mov dl, [ebr_drive_number]          ; boot device in dl
 
-    mov ax, KERNEL_LOAD_SEGMENT         ; set segment registers
+    mov ax, STAGE2_LOAD_SEGMENT         ; set segment registers
     mov ds, ax
     mov es, ax
 
-    jmp KERNEL_LOAD_SEGMENT:KERNEL_LOAD_OFFSET
+    jmp STAGE2_LOAD_SEGMENT:STAGE2_LOAD_OFFSET
 
     jmp wait_key_and_reboot             ; should never happen
 
@@ -368,8 +368,8 @@ msg_stage2_not_found:   db 'STAGE2.BIN file not found!', ENDL, 0
 file_stage2_bin:        db 'STAGE2  BIN'
 stage2_cluster:         dw 0
 
-KERNEL_LOAD_SEGMENT     equ 0x2000
-KERNEL_LOAD_OFFSET      equ 0
+STAGE2_LOAD_SEGMENT     equ 0x0
+STAGE2_LOAD_OFFSET      equ 0x500
 
 
 times 510-($-$$) db 0

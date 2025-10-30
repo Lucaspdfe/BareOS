@@ -1,15 +1,15 @@
-ASM		    := nasm
-ASMFLAGS    := -f bin
-
-BUILD 		:= build
-STAGE1      := $(BUILD)/stage1.bin
+BUILD_DIR?=build/
+ASM?=nasm
 
 .PHONY: all clean
 
-all: $(STAGE1)
+all: stage1
 
-$(STAGE1): boot.asm
-	@$(ASM) $(ASMFLAGS) $< -o $@
+stage1: $(BUILD_DIR)/stage1.bin
+
+$(BUILD_DIR)/stage1.bin: boot.asm
+	@$(ASM) $< -f bin -o $@
+	@echo "--> Created  stage1.bin"
 
 clean:
-	rm -rf $(STAGE1)
+	@rm -f $(BUILD_DIR)/stage1.bin

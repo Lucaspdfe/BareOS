@@ -18,12 +18,12 @@ BOOTLOADER: $(STAGE1) $(STAGE2)
 
 $(STAGE1): build
 	@echo "[*] Assembling stage1..."
-	@$(MAKE) -C src/bootloader/stage1 BUILD=$(abspath build/) --no-print-directory
+	@$(MAKE) -C src/bootloader/stage1 BUILD_DIR=$(abspath build/) --no-print-directory
 	@echo "[+] Created $@."
 
 $(STAGE2): build
 	@echo "[*] Assembling stage2..."
-	@$(MAKE) -C src/bootloader/stage2 BUILD=$(abspath build/) --no-print-directory
+	@$(MAKE) -C src/bootloader/stage2 BUILD_DIR=$(abspath build/) --no-print-directory
 	@cp build/stage2.bin $@
 	@echo "[+] Created $@."
 
