@@ -39,7 +39,7 @@ $(IMAGE): $(STAGE1) $(STAGE2) | build
 	@dd if=$(STAGE1) of=$@ bs=512 count=1 conv=notrunc
 
 	@echo "[*] Writing files from root/ to the image"
-	@cp root/* temp_root/
+	@cp -r root/* temp_root/
 	@mcopy -i $@ temp_root/* ::
 
 	@echo "[+] HDD image ready: $@"
