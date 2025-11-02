@@ -1,1 +1,1 @@
-qemu-system-x86_64 -hda build/flp.img
+qemu-system-x86_64 -fda build/flp.img -serial stdio

@@ -16,7 +16,7 @@ typedef struct TAG_FB {
     uint8_t* fb;
     uint8_t bpp;
     uint32_t width, height;
-    uint32_t pitch; // bytes per horizontal line (from VBE modeInfo->pitch)
+    uint32_t pitch; // bytes per horizontal line (provided by bootloader VBE modeInfo->pitch)
     // Color masks/positions (from VBE mode info)
     uint8_t red_mask;
     uint8_t red_position;

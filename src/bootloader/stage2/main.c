@@ -39,9 +39,6 @@ void __attribute__((cdecl)) start(uint16_t bootDrive)
     }
     FAT_Close(fd);
 
-    // --- Skip vbe because kernel still did not define it...
-    goto after_vbe;
-
     // --- Set graphics mode ---
     const int desiredWidth = 1024, desiredHeight = 768, desiredBpp = 32;
     uint16_t pickedMode = 0xFFFF;
@@ -67,12 +64,14 @@ void __attribute__((cdecl)) start(uint16_t bootDrive)
 
         if (pickedMode != 0xFFFF)
             VBE_SetMode(pickedMode);
+
+        // No stage2 framebuffer drawing here; stage2 only sets up tags (including pitch and
+        // color mask/position) which the kernel will use to draw.
     } else {
         printf("No VBE extensions :(\n");
         goto end;
     }
 
-after_vbe:
     // --- Build tags in memory (array, no fixed addr) ---
     uint8_t tagBuffer[256];
     memset(tagBuffer, 0, sizeof(tagBuffer));
@@ -88,7 +87,14 @@ after_vbe:
     tag_fb->fb = (uint8_t*)modeInfo->framebuffer;
     tag_fb->bpp = modeInfo->bpp;
     tag_fb->width = modeInfo->width;
+    tag_fb->pitch = modeInfo->pitch;
     tag_fb->height = modeInfo->height;
+    tag_fb->red_mask = modeInfo->red_mask;
+    tag_fb->red_position = modeInfo->red_position;
+    tag_fb->green_mask = modeInfo->green_mask;
+    tag_fb->green_position = modeInfo->green_position;
+    tag_fb->blue_mask = modeInfo->blue_mask;
+    tag_fb->blue_position = modeInfo->blue_position;
     ptr += sizeof(TAG_FB);
     tags->totalTags++;
 

@@ -4,10 +4,7 @@
 IMAGE       := build/flp.img
 STAGE1      := build/stage1.bin
 STAGE2      := temp_root/stage2.bin
-
-# NASM options
-NASM        := nasm
-NASMFLAGS   := -f bin
+KERNEL      := temp_root/boot/kernel.bin
 
 .PHONY: all clean
 
@@ -27,8 +24,14 @@ $(STAGE2): build
 	@cp build/stage2.bin $@
 	@echo "[+] Created $@."
 
+$(KERNEL): build
+	@echo "[*] Assembling kernel..."
+	@$(MAKE) -C src/kernel BUILD_DIR=$(abspath build/) --no-print-directory
+	@cp build/kernel.bin $@
+	@echo "[+] Created $@."
+
 # Create the HDD image
-$(IMAGE): $(STAGE1) $(STAGE2) | build
+$(IMAGE): $(STAGE1) $(STAGE2) $(KERNEL) | build
 	@echo "[*] Creating floppy disk image..."
 	@dd if=/dev/zero of=$@ bs=512 count=2880
 
@@ -49,6 +52,7 @@ $(IMAGE): $(STAGE1) $(STAGE2) | build
 build:
 	@mkdir -p build
 	@mkdir -p temp_root
+	@mkdir -p temp_root/boot
 
 # Clean build artifacts
 clean:
