@@ -41,6 +41,7 @@ void __attribute__((section(".entry"))) start(void* tags) {
     }
 
     i686_DISP_Initialize(fb);
+    i686_DISP_SetScale(2);
     printf("Hello, world from KERNEL!!!!");
 
     for (;;);

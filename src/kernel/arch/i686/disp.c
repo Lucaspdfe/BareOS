@@ -6,12 +6,23 @@
 static TAG_FB* drv_fb = 0;
 static uint32_t drv_bytes_per_pixel = 0;
 static uint32_t drv_pitch = 0;
+static uint32_t drv_scale = 1; // <--- New: scale modifier (default 1x)
+
+// Cursor position for putc/puts
+static uint32_t cursor_x = 0;
+static uint32_t cursor_y = 0;
 
 void i686_DISP_Initialize(TAG_FB* fb) {
     drv_fb = fb;
     if (!fb) return;
     drv_bytes_per_pixel = fb->bpp / 8;
     drv_pitch = fb->pitch ? fb->pitch : (fb->width * drv_bytes_per_pixel);
+}
+
+// Set the scale factor (must be >= 1)
+void i686_DISP_SetScale(uint32_t scale) {
+    if (scale <= 0) scale = 1;
+    drv_scale = scale;
 }
 
 static void drv_write_pixel_raw(uint32_t x, uint32_t y, uint32_t pixel) {
@@ -28,10 +39,6 @@ static void drv_write_pixel_raw(uint32_t x, uint32_t y, uint32_t pixel) {
 void i686_DISP_PutPixel(uint32_t x, uint32_t y, uint32_t pixel) {
     drv_write_pixel_raw(x, y, pixel);
 }
-
-// Cursor position for putc/puts
-static uint32_t cursor_x = 0;
-static uint32_t cursor_y = 0;
 
 static uint32_t drv_rgb_to_pixel(uint8_t r, uint8_t g, uint8_t b) {
     if (!drv_fb) return 0;
@@ -60,9 +67,17 @@ static void drv_put_glyph(char c, uint32_t x, uint32_t y, uint32_t color) {
     for (uint32_t row = 0; row < 8; ++row) {
         unsigned char bits = font8x8_basic[uc][row];
         for (uint32_t col = 0; col < 8; ++col) {
-            // font8x8_basic uses LSB-left in our repo; bit 0 is leftmost pixel
             if (bits & (1 << col)) {
-                drv_write_pixel_raw(x + col, y + row, color);
+                // Apply scaling
+                for (uint32_t sy = 0; sy < drv_scale; ++sy) {
+                    for (uint32_t sx = 0; sx < drv_scale; ++sx) {
+                        drv_write_pixel_raw(
+                            x + col * drv_scale + sx,
+                            y + row * drv_scale + sy,
+                            color
+                        );
+                    }
+                }
             }
         }
     }
@@ -73,9 +88,12 @@ void i686_DISP_PutChar(char c) {
     uint32_t white = drv_rgb_to_pixel(255,255,255);
     uint32_t black = drv_rgb_to_pixel(0,0,0);
 
+    uint32_t char_width = 8 * drv_scale;
+    uint32_t char_height = 8 * drv_scale;
+
     if (c == '\n') {
         cursor_x = 0;
-        cursor_y += 8;
+        cursor_y += char_height;
         return;
     }
     if (c == '\r') {
@@ -84,16 +102,16 @@ void i686_DISP_PutChar(char c) {
     }
 
     if (c == '\b') {
-        if (cursor_x >= 8) cursor_x -= 8;
+        if (cursor_x >= char_width) cursor_x -= char_width;
         drv_put_glyph(' ', cursor_x, cursor_y, black);
         return;
     }
 
     drv_put_glyph(c, cursor_x, cursor_y, white);
-    cursor_x += 8;
-    if (cursor_x + 8 > drv_fb->width) {
+    cursor_x += char_width;
+    if (cursor_x + char_width > drv_fb->width) {
         cursor_x = 0;
-        cursor_y += 8;
+        cursor_y += char_height;
     }
 }
 
