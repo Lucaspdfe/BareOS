@@ -12,3 +12,7 @@ void putc(char c) {
 void puts(const char* s) {
     i686_DISP_PutString(s);
 }
+
+void clrscr() {
+    i686_DISP_Clear();
+}

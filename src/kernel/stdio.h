@@ -10,6 +10,9 @@ void putc(char c);
 /* Put a NUL-terminated string to the console */
 void puts(const char* s);
 
+/* Clears the screen */
+void clrscr();
+
 #define _putchar putc
 
 // This part I got from https://github.com/mpaland/printf/ or "A printf / sprintf Implementation for Embedded Systems"

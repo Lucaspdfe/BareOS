@@ -19,6 +19,28 @@ void i686_DISP_Initialize(TAG_FB* fb) {
     drv_pitch = fb->pitch ? fb->pitch : (fb->width * drv_bytes_per_pixel);
 }
 
+void i686_DISP_Clear() {
+    if (!drv_fb) return;
+
+    uint32_t color = 0x00000000;
+    uint8_t* base = drv_fb->fb;
+    uint32_t screen_bytes = drv_pitch * drv_fb->height;
+
+    // Fill entire framebuffer with given color
+    for (uint32_t y = 0; y < drv_fb->height; ++y) {
+        uint8_t* row = base + y * drv_pitch;
+        for (uint32_t x = 0; x < drv_fb->width; ++x) {
+            uint8_t* p = row + x * drv_bytes_per_pixel;
+            for (uint32_t i = 0; i < drv_bytes_per_pixel; ++i) {
+                p[i] = (uint8_t)((color >> (8 * i)) & 0xFF);
+            }
+        }
+    }
+
+    cursor_x = 0;
+    cursor_y = 0;
+}
+
 // Set the scale factor (must be >= 1)
 void i686_DISP_SetScale(uint32_t scale) {
     if (scale <= 0) scale = 1;
