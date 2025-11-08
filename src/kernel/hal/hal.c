@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <arch/i686/disp.h>
 #include <arch/i686/gdt.h>
+#include <arch/i686/idt.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -45,4 +46,6 @@ void HAL_Initialize(void* tags) {
     printf("DISP Initialized.\n");
     i686_GDT_Initialize();
     printf("GDT Initialized.\n");
+    i686_IDT_Initialize();
+    printf("IDT Initialized.\n");
 }
