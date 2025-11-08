@@ -3,6 +3,7 @@
 #include <arch/i686/disp.h>
 #include <arch/i686/gdt.h>
 #include <arch/i686/idt.h>
+#include <arch/i686/isr.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -42,10 +43,12 @@ void HAL_Initialize(void* tags) {
     }
 
     i686_DISP_Initialize(fb);
-    i686_DISP_SetScale(2);
+    i686_DISP_SetScale(1);
     printf("DISP Initialized.\n");
     i686_GDT_Initialize();
     printf("GDT Initialized.\n");
     i686_IDT_Initialize();
     printf("IDT Initialized.\n");
+    i686_ISR_Initialize();
+    printf("ISR Initialized.\n");
 }
