@@ -5,6 +5,8 @@
 #include <arch/i686/idt.h>
 #include <arch/i686/isr.h>
 #include <arch/i686/irq.h>
+#include <arch/i686/pit.h>
+#include <arch/i686/key.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -55,4 +57,8 @@ void HAL_Initialize(void* tags) {
     i686_IRQ_Initialize();
     printf("PIC Initialized.\n");       // PIC Initializes in conjunction with IRQ
     printf("IRQ Initialized.\n");
+    i686_PIT_Initialize();
+    printf("PIT Initialized\n");
+    i686_KEY_Initialize();
+    printf("Keyboard Initialized\n");
 }

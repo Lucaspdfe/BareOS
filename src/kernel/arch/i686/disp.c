@@ -86,11 +86,24 @@ static uint32_t drv_rgb_to_pixel(uint8_t r, uint8_t g, uint8_t b) {
 static void drv_put_glyph(char c, uint32_t x, uint32_t y, uint32_t color) {
     unsigned char uc = (unsigned char)c;
     if (uc >= 128) return;
+    /* First: clear the whole character cell to the background (black).
+       This ensures overwriting previous pixels (important for backspace/space).
+    */
+    uint32_t bg = drv_rgb_to_pixel(0,0,0);
+    uint32_t cell_w = 8 * drv_scale;
+    uint32_t cell_h = 8 * drv_scale;
+    for (uint32_t ry = 0; ry < cell_h; ++ry) {
+        for (uint32_t rx = 0; rx < cell_w; ++rx) {
+            drv_write_pixel_raw(x + rx, y + ry, bg);
+        }
+    }
+
+    /* Then draw foreground pixels for the glyph */
     for (uint32_t row = 0; row < 8; ++row) {
         unsigned char bits = font8x8_basic[uc][row];
         for (uint32_t col = 0; col < 8; ++col) {
             if (bits & (1 << col)) {
-                // Apply scaling
+                /* Apply scaling */
                 for (uint32_t sy = 0; sy < drv_scale; ++sy) {
                     for (uint32_t sx = 0; sx < drv_scale; ++sx) {
                         drv_write_pixel_raw(
@@ -125,6 +138,8 @@ void i686_DISP_PutChar(char c) {
 
     if (c == '\b') {
         if (cursor_x >= char_width) cursor_x -= char_width;
+        else cursor_x = 0;
+        /* Clear the previous character cell */
         drv_put_glyph(' ', cursor_x, cursor_y, black);
         return;
     }
