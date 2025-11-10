@@ -12,10 +12,5 @@ void __attribute__((section(".entry"))) start(void* tags) {
     clrscr();
     printf("Hello, world from KERNEL!!!!\n");
 
-    while (1) {
-        KEYState key = i686_KEY_WaitKey();
-        printf("%c", key.character);
-    }
-
     for (;;);
 }

@@ -40,4 +40,4 @@ $(BUILD_DIR)/kernel/asm/%.obj: %.asm $(HEADERS_ASM)
 	@echo "--> Compiled: " $<
 
 clean:
-	rm -f $(BUILD_DIR)/kernel.bin
+	rm -rf $(BUILD_DIR)
