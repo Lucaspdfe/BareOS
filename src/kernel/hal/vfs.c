@@ -1,12 +1,19 @@
 #include "vfs.h"
 #include <arch/i686/key.h>
 #include <arch/i686/disp.h>
+#include <arch/i686/debug.h>
 
 /* POSIX-like VFS write: return number of bytes written or -1 on error */
 size_t VFS_Write(int fd, const char* buffer, size_t amount) {
     if (!buffer || amount == 0) return 0;
     switch (fd) {
         case STDERR:
+            i686_DEBUG_Debugs("\033[31m[ERR] ");
+            for (size_t i = 0; i < amount; i++) {
+                i686_DEBUG_Debugc(buffer[i]);
+            }
+            i686_DEBUG_Debugs("\033[0m\n");
+            return (size_t)amount;
         case STDOUT:
             for (size_t i = 0; i < amount; i++) {
                 i686_DISP_PutChar(buffer[i]);
@@ -22,7 +29,7 @@ size_t VFS_Write(int fd, const char* buffer, size_t amount) {
 */
 size_t VFS_Read(int fd, char* buffer, size_t amount) {
     if (!buffer || amount == 0) return 0;
-    if (fd != STDIN) return -1;
+    if (fd != STDIN) return 0;
 
     size_t i = 0;
     while (i < amount) {
@@ -50,9 +57,9 @@ size_t VFS_Read(int fd, char* buffer, size_t amount) {
         }
 
         /* store and echo */
-        buffer[i++] = c;
         i686_DISP_PutChar(c);
         if (c == '\n') break; /* stop at newline (line-oriented) */
+        buffer[i++] = c;
     }
     return (size_t)i;
 }

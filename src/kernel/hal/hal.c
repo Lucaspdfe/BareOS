@@ -1,5 +1,6 @@
 #include "hal.h"
 #include <memory.h>
+#include <arch/i686/debug.h>
 #include <arch/i686/disp.h>
 #include <arch/i686/gdt.h>
 #include <arch/i686/idt.h>
@@ -45,20 +46,22 @@ void HAL_Initialize(void* tags) {
         }
     }
 
+    i686_DEBUG_Initialize();
+    i686_DEBUG_Debugf(LOG_DEBUG, "DEBUG Initialized.");
     i686_DISP_Initialize(fb);
     i686_DISP_SetScale(1);
-    printf("DISP Initialized.\n");
+    i686_DEBUG_Debugf(LOG_DEBUG, "DISP Initialized.");
     i686_GDT_Initialize();
-    printf("GDT Initialized.\n");
+    i686_DEBUG_Debugf(LOG_DEBUG, "GDT Initialized.");
     i686_IDT_Initialize();
-    printf("IDT Initialized.\n");
+    i686_DEBUG_Debugf(LOG_DEBUG, "IDT Initialized.");
     i686_ISR_Initialize();
-    printf("ISR Initialized.\n");
+    i686_DEBUG_Debugf(LOG_DEBUG, "ISR Initialized.");
     i686_IRQ_Initialize();
-    printf("PIC Initialized.\n");       // PIC Initializes in conjunction with IRQ
-    printf("IRQ Initialized.\n");
+    i686_DEBUG_Debugf(LOG_DEBUG, "PIC Initialized.");       // PIC Initializes in conjunction with IRQ
+    i686_DEBUG_Debugf(LOG_DEBUG, "IRQ Initialized.");
     i686_PIT_Initialize();
-    printf("PIT Initialized\n");
+    i686_DEBUG_Debugf(LOG_DEBUG, "PIT Initialized.");
     i686_KEY_Initialize();
-    printf("Keyboard Initialized\n");
+    i686_DEBUG_Debugf(LOG_DEBUG, "Keyboard Initialized.");
 }
