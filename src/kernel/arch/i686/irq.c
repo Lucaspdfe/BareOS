@@ -1,6 +1,7 @@
 #include "isr.h"
 #include "irq.h"
 #include "pic.h"
+#include "debug.h"
 #include "io.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -23,7 +24,7 @@ void i686_IRQ_Handler(Registers* regs)
     }
     else
     {
-        printf("Unhandled IRQ %d  ISR=%x  IRR=%x...\n", irq, pic_isr, pic_irr);
+        i686_DEBUG_Debugf(LOG_WARN, "Unhandled IRQ %d  ISR=%x  IRR=%x...", irq, pic_isr, pic_irr);
     }
 
     // send EOI
