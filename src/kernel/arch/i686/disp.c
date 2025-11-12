@@ -1,6 +1,6 @@
 #include "arch/i686/disp.h"
 #include <util/font8x8.h>
-#include <memory.h>
+#include <string.h>
 
 // Simple driver state
 static TAG_FB* drv_fb = 0;

@@ -1,8 +1,7 @@
 #include <stdint.h>
 #include <hal/hal.h>
 #include "stdio.h"
-#include <arch/i686/pit.h>
-#include <arch/i686/key.h>
+#include <arch/i686/fdc.h>
 #include <hal/vfs.h>
 
 void crash_me();
@@ -10,10 +9,13 @@ void crash_me();
 void __attribute__((section(".entry"))) start(void* tags) {
     HAL_Initialize(tags);
 
-    clrscr();
-    char buffer[256];
-    size_t amount = VFS_Read(STDIN, buffer, 256);
-    printf("Buffer content: \"%s\" size: %i", buffer, amount);
+    uint8_t buffer[512];
+
+    i686_FDC_ReadSectors(0, 0, 1, 1, &buffer);
+
+    if (buffer[510] == 0x55 && buffer[511] == 0xAA) {
+        printf("Works!!!");
+    }
 
     for (;;);
 }

@@ -1,5 +1,5 @@
 #include "hal.h"
-#include <memory.h>
+#include <string.h>
 #include <arch/i686/debug.h>
 #include <arch/i686/disp.h>
 #include <arch/i686/gdt.h>
@@ -8,6 +8,7 @@
 #include <arch/i686/irq.h>
 #include <arch/i686/pit.h>
 #include <arch/i686/key.h>
+#include <arch/i686/fdc.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -64,4 +65,6 @@ void HAL_Initialize(void* tags) {
     i686_DEBUG_Debugf(LOG_DEBUG, "PIT Initialized.");
     i686_KEY_Initialize();
     i686_DEBUG_Debugf(LOG_DEBUG, "Keyboard Initialized.");
+    i686_FDC_Initialize();
+    i686_DEBUG_Debugf(LOG_DEBUG, "Floppy Initialized.");
 }
