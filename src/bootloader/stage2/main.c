@@ -103,7 +103,7 @@ void __attribute__((cdecl)) start(uint16_t bootDrive)
     tag_disk->header.type = TAG_TYPE_DISK;
     tag_disk->header.size = sizeof(TAG_DISK);
     tag_disk->id = bootDrive;
-    tag_disk->type = 0; // 0 = floppy, etc.
+    tag_disk->type = 0x00; // 0x00 = floppy, 0x80 = HDD, etc.
     ptr += sizeof(TAG_DISK);
     tags->totalTags++;
 

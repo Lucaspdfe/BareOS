@@ -10,11 +10,11 @@ uint64_t ticks;
 void i686_PIT_Handler(Registers* regs);
 
 void i686_PIT_Initialize() {
+    i686_IRQ_RegisterHandler(0, i686_PIT_Handler);
     uint16_t divisor = 1193182 / 1000;
     i686_outb(PIT_COMMAND, 0x36);
     i686_outb(PIT_CHANNEL0, divisor & 0xFF);
     i686_outb(PIT_CHANNEL0, divisor >> 8);
-    i686_IRQ_RegisterHandler(0, i686_PIT_Handler);
 }
 
 void i686_PIT_Handler(Registers* regs) {

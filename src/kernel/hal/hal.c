@@ -8,7 +8,8 @@
 #include <arch/i686/irq.h>
 #include <arch/i686/pit.h>
 #include <arch/i686/key.h>
-#include <arch/i686/fdc.h>
+#include <arch/i686/disk.h>
+#include <arch/i686/fat.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -20,7 +21,7 @@ void HAL_Initialize(void* tags) {
 
     TAG_Start* startTag = (TAG_Start*)tags;
     TAG_FB* fb = NULL;
-    TAG_DISK* disk = NULL;
+    TAG_DISK* disk_tag = NULL;
     if (startTag) {
         uint8_t count = startTag->totalTags;
         uint8_t* ptr = (uint8_t*)(startTag + 1);
@@ -34,7 +35,7 @@ void HAL_Initialize(void* tags) {
                     fb = (TAG_FB*)header;
                     break;
                 case TAG_TYPE_DISK:
-                    disk = (TAG_DISK*)header;
+                    disk_tag = (TAG_DISK*)header;
                     break;
                 case TAG_TYPE_END:
                     i = count; // stop early
@@ -65,6 +66,10 @@ void HAL_Initialize(void* tags) {
     i686_DEBUG_Debugf(LOG_DEBUG, "PIT Initialized.");
     i686_KEY_Initialize();
     i686_DEBUG_Debugf(LOG_DEBUG, "Keyboard Initialized.");
-    i686_FDC_Initialize();
-    i686_DEBUG_Debugf(LOG_DEBUG, "Floppy Initialized.");
+    DISK disk = i686_DISK_Initialize(disk_tag);
+    i686_DEBUG_Debugf(LOG_DEBUG, "Disk Initialized.");
+    if (!i686_FAT_Initialize(&disk)) {
+        i686_DEBUG_Debugf(LOG_ERR, "FAT NOT Initialized.");
+    }
+    i686_DEBUG_Debugf(LOG_DEBUG, "FAT Initialized.");
 }
