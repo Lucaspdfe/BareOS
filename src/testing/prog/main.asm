@@ -2,7 +2,7 @@ org 0x00200000
 bits 32
 
 start:
-    mov eax, 1        ; sys_write
+    mov eax, 4        ; sys_write
     mov ebx, 1        ; stdout
     mov ecx, msg      ; ptr to text
     mov edx, msg_len  ; length
