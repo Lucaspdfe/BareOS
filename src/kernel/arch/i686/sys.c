@@ -1,12 +1,20 @@
+#include <stdint.h>
+#include "pit.h"
 #include "sys.h"
 #include "isr.h"
 #include <hal/vfs.h>
 
-enum {
-    SYS_READ  = 0,
-    SYS_WRITE = 1,
-    SYS_OPEN  = 2,
-    SYS_CLOSE = 3
+enum { 
+    SYS_READ = 3, 
+    SYS_WRITE = 4, 
+    SYS_OPEN = 5, 
+    SYS_CLOSE = 6, 
+    SYS_NANOSLEEP = 162
+};
+
+struct timespec {
+    uint32_t tv_sec;  // seconds
+    uint32_t tv_nsec; // nanoseconds
 };
 
 void i686_SYS_Handler(Registers* regs) {
@@ -38,6 +46,18 @@ void i686_SYS_Handler(Registers* regs) {
         case SYS_CLOSE: {
             int fd = regs->ebx;
             VFS_Close(fd);
+            regs->eax = 0;
+            break;
+        }
+
+        case SYS_NANOSLEEP: {
+            struct timespec* req = (struct timespec*)regs->ebx;
+
+            if (req) {
+                uint32_t ms = req->tv_sec * 1000 + req->tv_nsec / 1000000;
+                i686_PIT_Sleep(ms);
+            }
+
             regs->eax = 0;
             break;
         }
