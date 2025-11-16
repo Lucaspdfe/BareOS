@@ -49,13 +49,15 @@ void i686_ISR_Initialize() {
     for (int i = 0; i < 256; i++) {
         i686_IDT_EnableGate(i);
     }
-    i686_IDT_DisableGate(0x80);
 }
 
 void __attribute__((cdecl)) i686_ISR_Handler(Registers* regs)
 {
-    if (g_ISRHandlers[regs->interrupt] != NULL)
+    if (g_ISRHandlers[regs->interrupt] != NULL) {
+        i686_EnableInterrupts();
         g_ISRHandlers[regs->interrupt](regs);
+        i686_DisableInterrupts();
+    }
 
     else if (regs->interrupt >= 32)
         i686_DEBUG_Debugf(LOG_WARN, "Unhandled interrupt %d!", regs->interrupt);

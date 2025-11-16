@@ -1,3 +1,5 @@
+section .text
+
 global i686_outb
 i686_outb:
     [bits 32]
@@ -31,5 +33,4 @@ i686_DisableInterrupts:
 
 global crash_me
 crash_me:
-    int 0x80
     ret

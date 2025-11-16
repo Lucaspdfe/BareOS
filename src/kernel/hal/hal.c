@@ -10,6 +10,7 @@
 #include <arch/i686/key.h>
 #include <arch/i686/disk.h>
 #include <arch/i686/fat.h>
+#include <arch/i686/sys.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -72,4 +73,6 @@ void HAL_Initialize(void* tags) {
         i686_DEBUG_Debugf(LOG_ERR, "FAT NOT Initialized.");
     }
     i686_DEBUG_Debugf(LOG_DEBUG, "FAT Initialized.");
+    i686_SYS_Initialize();
+    i686_DEBUG_Debugf(LOG_DEBUG, "SYSCALL Initialized.");
 }

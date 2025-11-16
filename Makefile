@@ -5,6 +5,7 @@ IMAGE       := build/flp.img
 STAGE1      := build/stage1.bin
 STAGE2      := temp_root/stage2.bin
 KERNEL      := temp_root/boot/kernel.bin
+PROGRAM     := temp_root/usr/prog.bin
 
 .PHONY: all clean
 
@@ -30,8 +31,14 @@ $(KERNEL): build
 	@cp build/kernel.bin $@
 	@echo "[+] Created $@."
 
+$(PROGRAM): build
+	@echo "[*] Assembling test program..."
+	@$(MAKE) -C src/testing/prog BUILD_DIR=$(abspath build/) --no-print-directory
+	@cp build/prog.bin $@
+	@echo "[+] Created $@."
+
 # Create the HDD image
-$(IMAGE): $(STAGE1) $(STAGE2) $(KERNEL) | build
+$(IMAGE): $(STAGE1) $(STAGE2) $(KERNEL) $(PROGRAM) | build
 	@echo "[*] Creating floppy disk image..."
 	@dd if=/dev/zero of=$@ bs=512 count=2880
 
@@ -53,6 +60,7 @@ build:
 	@mkdir -p build
 	@mkdir -p temp_root
 	@mkdir -p temp_root/boot
+	@mkdir -p temp_root/usr
 
 # Clean build artifacts
 clean:
