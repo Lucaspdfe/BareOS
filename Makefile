@@ -6,6 +6,7 @@ STAGE1      := build/stage1.bin
 STAGE2      := temp_root/stage2.bin
 KERNEL      := temp_root/boot/kernel.bin
 PROGRAM     := temp_root/usr/prog.bin
+PROGRAM2    := temp_root/usr/prog2.bin
 
 .PHONY: all clean
 
@@ -37,8 +38,14 @@ $(PROGRAM): build
 	@cp build/prog.bin $@
 	@echo "[+] Created $@."
 
+$(PROGRAM2): build
+	@echo "[*] Assembling second test program..."
+	@$(MAKE) -C src/testing/prog2 BUILD_DIR=$(abspath build/) --no-print-directory
+	@cp build/prog2.bin $@
+	@echo "[+] Created $@."
+
 # Create the HDD image
-$(IMAGE): $(STAGE1) $(STAGE2) $(KERNEL) $(PROGRAM) | build
+$(IMAGE): $(STAGE1) $(STAGE2) $(KERNEL) $(PROGRAM) $(PROGRAM2) | build
 	@echo "[*] Creating floppy disk image..."
 	@dd if=/dev/zero of=$@ bs=512 count=2880
 

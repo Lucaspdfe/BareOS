@@ -4,7 +4,14 @@
 #include "isr.h"
 #include <hal/vfs.h>
 
+struct kernelReturnFrame {
+    uint32_t saved_ebp, saved_eip;
+};
+
+extern struct kernelReturnFrame savedFrame;
+
 enum { 
+    SYS_EXIT = 1,
     SYS_READ = 3, 
     SYS_WRITE = 4, 
     SYS_OPEN = 5, 
@@ -21,6 +28,18 @@ void i686_SYS_Handler(Registers* regs) {
     uint32_t syscall = regs->eax;
 
     switch (syscall) {
+        case SYS_EXIT: {
+            int exitcode = regs->ebx;
+            __asm__ volatile("movl %0, %%ebp  \n"
+                             "pushl %1        \n"
+                             "ret             \n"
+
+                             :
+                             : "r"(savedFrame.saved_ebp),
+                               "r"(savedFrame.saved_eip));
+            break;
+        }
+
         case SYS_READ: {
             int fd = regs->ebx;
             char* buf = (char*)regs->ecx;

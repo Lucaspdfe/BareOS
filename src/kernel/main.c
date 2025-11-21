@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <hal/hal.h>
 #include <hal/vfs.h>
 
@@ -20,14 +21,17 @@ size_t LoadProgram(const char* path) {
     return loaded;
 }
 
-void __attribute__((section(".entry"))) start(void* tags) {
-    HAL_Initialize(tags);
+struct kernelReturnFrame {
+    uint32_t saved_ebp, saved_eip;
+};
 
-    size_t size = LoadProgram("/usr/prog.bin");
-    if (size == 0)
-        for (;;) {}
+struct kernelReturnFrame savedFrame;
 
-    __asm__ volatile(
+void JumpToProgram(uint32_t addr, uint32_t stack) {
+    __asm__ volatile("movl %%ebp, %0" : "=r"(savedFrame.saved_ebp));
+    __asm__ volatile("movl 4(%%ebp), %0" : "=r"(savedFrame.saved_eip));
+
+    __asm__ volatile (
         "mov $0x23, %%ax      \n"
         "mov %%ax, %%ds       \n"
         "mov %%ax, %%es       \n"
@@ -42,9 +46,27 @@ void __attribute__((section(".entry"))) start(void* tags) {
         "pushl %1             \n"   // EIP
         "iret                 \n"
         :
-        : "r"(PROGRAM_STACK_TOP), "r"(PROGRAM_LOAD_ADDR)
+        : "r"(stack), "r"(addr)
         : "eax"
     );
+}
+
+void __attribute__((section(".entry"))) start(void* tags) {
+    HAL_Initialize(tags);
+
+    size_t size = LoadProgram("/usr/prog.bin");
+    if (size == 0)
+        for (;;) {}
+
+    JumpToProgram(PROGRAM_LOAD_ADDR, PROGRAM_STACK_TOP);
+
+    size = LoadProgram("/usr/prog2.bin");
+    if (size == 0)
+        for (;;) {}
+
+    JumpToProgram(PROGRAM_LOAD_ADDR, PROGRAM_STACK_TOP);
+
+    printf("Returned!!!!");
 
     for (;;) {}
 }

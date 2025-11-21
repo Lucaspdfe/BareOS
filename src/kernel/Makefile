@@ -1,5 +1,6 @@
 TARGET_ASMFLAGS = -f elf
-TARGET_CFLAGS = -std=c99 -g -ffreestanding -nostdlib -I. -Werror
+TARGET_CFLAGS = -g -ffreestanding -nostdlib -I. -Werror
+TARGET_CFLAGS += -std=c99
 TARGET_LIBS = -lgcc
 TARGET_LINKFLAGS = -T linker.ld -nostdlib
 TARGET_ASM = nasm
