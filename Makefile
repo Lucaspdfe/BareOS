@@ -1,4 +1,4 @@
-# Makefile - build a FAT16 bootable 64MB HDD image
+# Makefile - build a FAT12 bootable FLP image
 
 # Output files
 IMAGE       := build/flp.img
