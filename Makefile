@@ -8,7 +8,7 @@ KERNEL      := temp_root/boot/kernel.bin
 PROGRAM     := temp_root/usr/prog.bin
 PROGRAM2    := temp_root/usr/prog2.bin
 
-.PHONY: all clean
+.PHONY: all clean run BOOTLOADER
 
 all: clean $(IMAGE) run
 
@@ -75,5 +75,5 @@ clean:
 	@rm -rf temp_root
 
 # Run the current image on QEMU
-run: $(IMAGE)
+run:
 	./run
