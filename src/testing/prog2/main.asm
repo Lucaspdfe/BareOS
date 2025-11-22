@@ -12,5 +12,6 @@ start:
     int 0x80
     jmp $
 
-msg     db "Hello, world from RING3 (Program 2)!", 10
+msg     db "This is a test code from the second program!", 10
+
 msg_len equ $ - msg
