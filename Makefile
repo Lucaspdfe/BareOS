@@ -10,7 +10,7 @@ PROGRAM2    := temp_root/usr/prog2.bin
 
 .PHONY: all clean
 
-all: clean $(IMAGE)
+all: clean $(IMAGE) run
 
 # Build the bootloader binary
 BOOTLOADER: $(STAGE1) $(STAGE2)
@@ -73,3 +73,7 @@ build:
 clean:
 	@rm -rf build
 	@rm -rf temp_root
+
+# Run the current image on QEMU
+run: $(IMAGE)
+	./run
