@@ -13,6 +13,9 @@
 #define MEMORY_LOAD_KERNEL  ((void*)0x30000)
 #define MEMORY_LOAD_SIZE    0x00010000
 
+// In kernel 0x3000 is used for the FDC
+#define FDC_DMA_BUFFER_ADDR ((void*)0x30000)
+
 // 0x00020000 - 0x00030000 - stage2
 
 #define MEMORY_VESA_INFO    0x40000
@@ -25,3 +28,10 @@
 // 0x000C8000 - 0x000FFFFF - BIOS
 
 #define MEMORY_KERNEL_ADDR  ((void*)0x100000)
+
+#define PROGRAM_LOAD_ADDR  ((uint32_t)0x00200000)
+#define PROGRAM_STACK_TOP  ((uint32_t)0x0020F000)
+
+// 0x0020F000 - 0x004FFFFF - Free
+
+// 0x00500000 - 0x005FFFFF - Malloc
