@@ -30,7 +30,7 @@ To compile the toolchain, run these commands:
 echo 'export PATH="$PATH:/opt/i686-elf-toolchain/i686-elf/bin"' >> ~/.bashrc
    ```
 
-(If this command didn't work, try modifying $BINUTILS_VERSION and $GCC_VERSION on toolchain.sh)
+(If this command didn't work, try modifying BINUTILS_VERSION and GCC_VERSION on toolchain.sh)
 
 ## Compiling
 
