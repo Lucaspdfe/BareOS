@@ -6,7 +6,7 @@
 #include "memdefs.h"
 #include "memory.h"
 #include "vbe.h"
-#include "boot.h" // include your TAG_* definitions
+#include <boot/boot.h> // include your TAG_* definitions
 
 typedef void (*KernelStart)(void*);
 

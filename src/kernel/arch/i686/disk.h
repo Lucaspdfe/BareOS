@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
-#include <util/boot.h>
+#include <boot/boot.h>
 
 typedef struct {
     uint8_t id;

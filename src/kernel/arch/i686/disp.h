@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include <util/boot.h>
+#include <boot/boot.h>
 
 void i686_DISP_Initialize(TAG_FB* fb);
 void i686_DISP_Clear();

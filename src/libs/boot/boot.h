@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint-gcc.h>
+#include <stdint.h>
 
 #define TAG_TYPE_FB    1
 #define TAG_TYPE_DISK  2
