@@ -1,25 +1,34 @@
 #!/bin/sh
+set -e
 
-# The target OS architecture. 
-# Supported Architectures: i686-elf (default), x86_64-elf
+# ----------------------------
+# Configuration
+# ----------------------------
+
 ARCH="i686-elf"
-
-# Fixed install path
-TOOLCHAIN_PREFIX="/opt/$ARCH-toolchain/$ARCH"
-export PATH="$TOOLCHAIN_PREFIX/bin:$PATH"
+PREFIX="/opt/$ARCH-toolchain"
+SYSROOT="$PREFIX/$ARCH/sysroot"
 
 BINUTILS_VERSION=2.42
 GCC_VERSION=13.3.0
 
-# Variables that still depend on environment
-BINUTILS_SRC="toolchain/binutils-$BINUTILS_VERSION"
-BINUTILS_BUILD="toolchain/binutils-build-$BINUTILS_VERSION"
+JOBS=$(nproc)
 
-GCC_SRC="toolchain/gcc-$GCC_VERSION"
-GCC_BUILD="toolchain/gcc-build-$GCC_VERSION"
+export PATH="$PREFIX/bin:$PATH"
 
-BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz"
-GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz"
+WORKDIR="$PWD/toolchain"
+
+BINUTILS_TAR="binutils-$BINUTILS_VERSION.tar.xz"
+GCC_TAR="gcc-$GCC_VERSION.tar.xz"
+
+BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/$BINUTILS_TAR"
+GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/$GCC_TAR"
+
+BINUTILS_SRC="$WORKDIR/binutils-$BINUTILS_VERSION"
+BINUTILS_BUILD="$WORKDIR/binutils-build"
+
+GCC_SRC="$WORKDIR/gcc-$GCC_VERSION"
+GCC_BUILD="$WORKDIR/gcc-build"
 
 # ----------------------------
 # Host dependency checks
@@ -53,94 +62,99 @@ require bison
 require flex
 require python3 || require python
 
-#----------------------------------------
-# Binutils
-#----------------------------------------
+# ----------------------------
+# Fetch
+# ----------------------------
 
-fetch_binutils() {
-    mkdir -p toolchain
-    cd toolchain && wget -nc "$BINUTILS_URL"
+fetch() {
+    mkdir -p "$WORKDIR"
+    cd "$WORKDIR"
+
+    [ -f "$BINUTILS_TAR" ] || wget "$BINUTILS_URL"
+    [ -f "$GCC_TAR" ] || wget "$GCC_URL"
 }
 
-toolchain_binutils() {
-    tar -xf "toolchain/binutils-$BINUTILS_VERSION.tar.xz" -C "toolchain/"
+# ----------------------------
+# Binutils
+# ----------------------------
+
+build_binutils() {
+    tar -xf "$WORKDIR/$BINUTILS_TAR" -C "$WORKDIR"
+
     mkdir -p "$BINUTILS_BUILD"
-    cd "$BINUTILS_BUILD" && ../"binutils-$BINUTILS_VERSION"/configure \
-        --prefix="$TOOLCHAIN_PREFIX" \
+    cd "$BINUTILS_BUILD"
+
+    "$BINUTILS_SRC/configure" \
         --target="$ARCH" \
-        --with-sysroot \
+        --prefix="$PREFIX" \
+        --with-sysroot="$SYSROOT" \
         --disable-nls \
         --disable-werror
 
-    cd ../..
-    make -j8 -C "$BINUTILS_BUILD"
-    sudo make -C "$BINUTILS_BUILD" install
+    make -j"$JOBS"
+    make install
 }
 
-#----------------------------------------
-# GCC
-#----------------------------------------
+# ----------------------------
+# GCC (bootstrap)
+# ----------------------------
 
-fetch_gcc() {
-    mkdir -p toolchain
-    cd toolchain && wget -nc "$GCC_URL"
-}
+build_gcc() {
+    tar -xf "$WORKDIR/$GCC_TAR" -C "$WORKDIR"
 
-toolchain_gcc() {
-    tar -xf "toolchain/gcc-$GCC_VERSION.tar.xz" -C "toolchain/"
+    cd "$GCC_SRC"
+    ./contrib/download_prerequisites
+
     mkdir -p "$GCC_BUILD"
-    cd "$GCC_BUILD" && ../"gcc-$GCC_VERSION"/configure \
-        --prefix="$TOOLCHAIN_PREFIX" \
+    cd "$GCC_BUILD"
+
+    "$GCC_SRC/configure" \
         --target="$ARCH" \
+        --prefix="$PREFIX" \
+        --with-sysroot="$SYSROOT" \
         --disable-nls \
+        --disable-multilib \
         --enable-languages=c,c++ \
         --without-headers
-    cd ../..
-    make -j8 -C "$GCC_BUILD" all-gcc all-target-libgcc
-    sudo make -C "$GCC_BUILD" install-gcc install-target-libgcc
+
+    make -j"$JOBS" all-gcc all-target-libgcc
+    make install-gcc install-target-libgcc
 }
 
-#----------------------------------------
-# Cleaning
-#----------------------------------------
+# ----------------------------
+# Clean
+# ----------------------------
 
-clean_toolchain() {
-    rm -rf "$GCC_BUILD" "$GCC_SRC" "$BINUTILS_BUILD" "$BINUTILS_SRC"
+clean() {
+    rm -rf "$WORKDIR"
 }
 
-clean_toolchain_all() {
-    rm -rf toolchain/*
-}
-
-#----------------------------------------
+# ----------------------------
 # Dispatch
-#----------------------------------------
+# ----------------------------
 
 case "$1" in
+    fetch)
+        fetch
+        ;;
+    binutils)
+        fetch
+        build_binutils
+        ;;
+    gcc)
+        fetch
+        build_gcc
+        ;;
     toolchain)
-        toolchain_binutils
-        toolchain_gcc
+        fetch
+        build_binutils
+        build_gcc
         ;;
-    toolchain_binutils)
-        toolchain_binutils
-        ;;
-    toolchain_gcc)
-        toolchain_gcc
-        ;;
-    fetch_binutils)
-        fetch_binutils
-        ;;
-    fetch_gcc)
-        fetch_gcc
-        ;;
-    clean-toolchain)
-        clean_toolchain
-        ;;
-    clean-toolchain-all)
-        clean_toolchain_all
+    clean)
+        clean
         ;;
     *)
-        echo "Unknown command"
+        echo "Usage: $0 {fetch|binutils|gcc|toolchain|clean}"
         exit 1
         ;;
 esac
