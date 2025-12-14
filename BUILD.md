@@ -1,38 +1,105 @@
-# How to compile
+# How to build BareOS
 
-## Dependencies
+## Host requirements
 
-You'll need to use Linux, preferably any debian-based distro, or you can use WSL(Windows Subsystem for Linux) for Windows.
+You need a **Linux environment**.
+Native Linux is recommended. WSL works, but is not officially supported.
 
-List of dependencies:
-    `make`
-    `nasm`
-    `mtools`
-    `qemu-system`
-    `build-essential`
-    `bison`
-    `flex`
-    `libgmp-dev`
-    `libmpfr-dev`
-    `libmpc-dev`
-    `texinfo`
-    `wget`
-    `xz-utils`
+No package manager is assumed.
+Dependencies are checked, not auto-installed.
 
-### Toolchain (i686-elf)
+### Required host tools
 
-To compile the toolchain, run these commands:
+The following tools must be available in `PATH`:
 
-```bash
-./toolchain.sh fetch_binutils
-./toolchain.sh fetch_gcc
+Build tools:
+
+* `sh`
+* `make`
+* `gcc` **or** `clang`
+* `ld`, `ar`, `ranlib`
+* `bison`
+* `flex`
+* `python3` **or** `python`
+
+Archive / fetch tools:
+
+* `tar`
+* `xz`
+* `wget`
+
+Runtime / OS build tools:
+
+* `nasm`
+* `mtools`
+* `qemu-system-*`
+
+> Note
+> You **do not** need `libgmp`, `libmpfr`, `libmpc`, or `texinfo`.
+> GCC dependencies are downloaded and built automatically by the toolchain script.
+
+---
+
+## Toolchain (i686-elf)
+
+The project needs a **bare-metal cross compiler**.
+
+### Build the toolchain
+
+From the project root: (as administrator or root)
+
+```sh
 ./toolchain.sh toolchain
-echo 'export PATH="$PATH:/opt/i686-elf-toolchain/i686-elf/bin"' >> ~/.bashrc
-   ```
+```
 
-(If this command didn't work, try modifying BINUTILS_VERSION and GCC_VERSION on toolchain.sh)
+This will:
 
-## Compiling
+* Download binutils and GCC
+* Download GCC prerequisites (GMP, MPFR, MPC, ISL)
+* Build and install the cross toolchain
 
-To compile, run `make` and if you want to run the OS, run `./run`.
+### Install location
 
+By default, the toolchain is installed to:
+
+```
+/opt/i686-elf-toolchain
+```
+
+You may need to run the script as root, or change the prefix inside `toolchain.sh`.
+
+### Add toolchain to PATH
+
+Add this to your shell configuration:
+
+```sh
+export PATH="/opt/i686-elf-toolchain/bin:$PATH"
+```
+
+Restart your shell or reload the config.
+
+Verify:
+
+```sh
+i686-elf-gcc --version
+```
+
+---
+
+## Building the OS
+
+Once the toolchain is available:
+
+```sh
+make
+```
+
+---
+
+## Running
+
+To run the OS in QEMU:
+
+```sh
+./run
+```

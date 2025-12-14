@@ -1,7 +1,11 @@
 #!/bin/sh
 
+# The target OS architecture. 
+# Supported Architectures: i686-elf (default), x86_64-elf
+ARCH="i686-elf"
+
 # Fixed install path
-TOOLCHAIN_PREFIX="/opt/i686-elf-toolchain/i686-elf"
+TOOLCHAIN_PREFIX="/opt/$ARCH-toolchain/$ARCH"
 export PATH="$TOOLCHAIN_PREFIX/bin:$PATH"
 
 BINUTILS_VERSION=2.42
@@ -17,6 +21,38 @@ GCC_BUILD="toolchain/gcc-build-$GCC_VERSION"
 BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz"
 GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz"
 
+# ----------------------------
+# Host dependency checks
+# ----------------------------
+
+require() {
+    command -v "$1" >/dev/null 2>&1 || {
+        echo "Error: required tool '$1' not found in PATH"
+        exit 1
+    }
+}
+
+# Base build tools
+require sh
+require make
+require gcc || require clang
+require ld
+require ar
+require ranlib
+
+# Archive / fetch tools
+require tar
+require xz
+require wget
+
+# Misc tools used by GCC/binutils
+require sed
+require awk
+require grep
+require bison
+require flex
+require python3 || require python
+
 #----------------------------------------
 # Binutils
 #----------------------------------------
@@ -31,7 +67,7 @@ toolchain_binutils() {
     mkdir -p "$BINUTILS_BUILD"
     cd "$BINUTILS_BUILD" && ../"binutils-$BINUTILS_VERSION"/configure \
         --prefix="$TOOLCHAIN_PREFIX" \
-        --target="i686-elf" \
+        --target="$ARCH" \
         --with-sysroot \
         --disable-nls \
         --disable-werror
@@ -55,7 +91,7 @@ toolchain_gcc() {
     mkdir -p "$GCC_BUILD"
     cd "$GCC_BUILD" && ../"gcc-$GCC_VERSION"/configure \
         --prefix="$TOOLCHAIN_PREFIX" \
-        --target="i686-elf" \
+        --target="$ARCH" \
         --disable-nls \
         --enable-languages=c,c++ \
         --without-headers
