@@ -51,8 +51,7 @@ fetch_gcc() {
 }
 
 toolchain_gcc() {
-    toolchain_binutils
-    tar -xf "gcc-$GCC_VERSION.tar.xz" -C "toolchain/"
+    tar -xf "toolchain/gcc-$GCC_VERSION.tar.xz" -C "toolchain/"
     mkdir -p "$GCC_BUILD"
     cd "$GCC_BUILD" && ../"gcc-$GCC_VERSION"/configure \
         --prefix="$TOOLCHAIN_PREFIX" \
