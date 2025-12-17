@@ -5,7 +5,7 @@ IMAGE       := build/flp.img
 STAGE1      := build/stage1.bin
 STAGE2      := temp_root/stage2.bin
 KERNEL      := temp_root/boot/kernel.bin
-PROGRAM     := temp_root/usr/prog.bin
+PROGRAM     := temp_root/bin/ls
 PROGRAM2    := temp_root/usr/prog2.bin
 
 .PHONY: all clean run BOOTLOADER
@@ -67,6 +67,7 @@ build:
 	@mkdir -p build
 	@mkdir -p temp_root
 	@mkdir -p temp_root/boot
+	@mkdir -p temp_root/bin
 	@mkdir -p temp_root/usr
 
 # Clean build artifacts
