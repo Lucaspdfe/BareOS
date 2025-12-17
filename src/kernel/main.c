@@ -60,13 +60,5 @@ void __attribute__((section(".entry"))) start(void* tags) {
 
     JumpToProgram(PROGRAM_LOAD_ADDR, PROGRAM_STACK_TOP);
 
-    size = LoadProgram("/usr/prog2.bin");
-    if (size == 0)
-        for (;;) {}
-
-    JumpToProgram(PROGRAM_LOAD_ADDR, PROGRAM_STACK_TOP);
-
-    printf("Returned!!!!");
-
     for (;;) {}
 }

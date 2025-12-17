@@ -26,6 +26,8 @@ typedef struct FAT_File {
     bool open;
 } FAT_File;
 
+#define ATTR_DIRECTORY 0x10
+
 // Public API
 FAT_File* i686_FAT_GetFileInfo(int fd);
 void i686_FAT_ExtractName(const char fatName[11], char* out);

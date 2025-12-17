@@ -7,7 +7,6 @@
 #include "debug.h"
 
 #define MAX_OPEN_FILES 8
-#define ATTR_DIRECTORY 0x10
 
 typedef struct FAT_BootSector {
     uint8_t BootJumpInstruction[3];
