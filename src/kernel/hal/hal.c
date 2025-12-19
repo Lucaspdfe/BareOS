@@ -1,7 +1,6 @@
 #include "hal.h"
 #include <string.h>
 #include <arch/i686/debug.h>
-#include <arch/i686/alloc.h>
 #include <arch/i686/disp.h>
 #include <arch/i686/gdt.h>
 #include <arch/i686/idt.h>
@@ -52,8 +51,6 @@ void HAL_Initialize(void* tags) {
 
     i686_DEBUG_Initialize();
     i686_DEBUG_Debugf(LOG_DEBUG, "DEBUG Initialized.");
-    i686_ALO_Initialize();
-    i686_DEBUG_Debugf(LOG_DEBUG, "Allocator Initialized.");
     i686_DISP_Initialize(fb);
     i686_DISP_SetScale(1);
     i686_DEBUG_Debugf(LOG_DEBUG, "DISP Initialized.");
