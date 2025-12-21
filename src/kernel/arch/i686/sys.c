@@ -4,24 +4,16 @@
 #include "sys.h"
 #include "isr.h"
 #include "fat.h"
-#include "../../exec.h"
 #include "debug.h"
 #include <hal/vfs.h>
 
-extern struct kernelReturnFrame savedFrame;
-
-#define PROGRAM_LOAD_ADDR  ((uint32_t)0x00200000)
-#define PROGRAM_STACK_TOP  ((uint32_t)0x0020F000)
-
 enum { 
-    SYS_EXIT = 1,
     SYS_READ = 3, 
     SYS_WRITE = 4, 
     SYS_OPEN = 5, 
     SYS_CLOSE = 6,
-    SYS_EXECVE = 11,
-    SYS_GETDENTS = 141, 
-    SYS_NANOSLEEP = 162
+    SYS_GETDENTS = 141,
+    SYS_NANOSLEEP = 162,
 };
 
 struct linux_timespec {
@@ -47,18 +39,6 @@ void i686_SYS_Handler(Registers* regs) {
     uint32_t syscall = regs->eax;
 
     switch (syscall) {
-        case SYS_EXIT: {
-            int exitcode = regs->ebx;
-            __asm__ volatile("movl %0, %%ebp  \n"
-                             "pushl %1        \n"
-                             "ret             \n"
-
-                             :
-                             : "r"(savedFrame.saved_ebp),
-                               "r"(savedFrame.saved_eip));
-            break;
-        }
-
         case SYS_READ: {
             int fd = regs->ebx;
             char* buf = (char*)regs->ecx;
@@ -78,46 +58,6 @@ void i686_SYS_Handler(Registers* regs) {
         case SYS_OPEN: {
             const char* path = (const char*)regs->ebx;
             regs->eax = VFS_Open(path);
-            break;
-        }
-
-        case SYS_EXECVE: {
-            const char* upath = (const char*)regs->ebx;
-            char** uargv = (char**)regs->ecx;
-            /* envp is ignored for now */
-
-            if (!upath) { regs->eax = (uint32_t)-1; break; }
-
-            char kpath[128];
-            strncpy(kpath, upath, sizeof(kpath) - 1);
-            kpath[sizeof(kpath) - 1] = '\0';
-
-            // copy argv from user space (limit argc)
-            char kstrings[16][128];
-            char* argv_k[16];
-            int argc = 0;
-
-            if (uargv) {
-                for (int i = 0; i < 16; i++) {
-                    char* uptr = uargv[i];
-                    if (!uptr) { argc = i; break; }
-                    strncpy(kstrings[i], uptr, sizeof(kstrings[i]) - 1);
-                    kstrings[i][sizeof(kstrings[i]) - 1] = '\0';
-                    argv_k[i] = kstrings[i];
-                    argc = i + 1;
-                }
-            }
-
-            size_t loaded = LoadProgram(kpath);
-            if (loaded == 0) {
-                regs->eax = (uint32_t)-1;
-                break;
-            }
-
-            uint32_t user_sp = PrepareUserStack(PROGRAM_STACK_TOP, argv_k, argc);
-            JumpToProgramNotReturn(PROGRAM_LOAD_ADDR, user_sp);
-            
-            regs->eax = 0;
             break;
         }
 

@@ -1,5 +1,6 @@
 #include "pit.h"
 #include "irq.h"
+#include "disp.h"
 #include "io.h"
 
 #define PIT_COMMAND  0x43
@@ -19,6 +20,7 @@ void i686_PIT_Initialize() {
 
 void i686_PIT_Handler(Registers* regs) {
     ticks++;
+    i686_DISP_ToggleCursor();
 }
 
 void i686_PIT_Sleep(uint32_t ms) {
