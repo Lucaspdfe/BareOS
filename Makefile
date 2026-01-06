@@ -5,7 +5,7 @@ IMAGE       := build/flp.img
 STAGE1      := build/stage1.bin
 STAGE2      := temp_root/stage2.bin
 KERNEL      := temp_root/boot/kernel.bin
-PROGRAM     := temp_root/bin/ls
+PROGRAM     := temp_root/usr/prog.bin
 PROGRAM2    := temp_root/usr/prog2.bin
 
 .PHONY: all clean run BOOTLOADER

@@ -7,11 +7,13 @@
 #include <arch/i686/idt.h>
 #include <arch/i686/isr.h>
 #include <arch/i686/irq.h>
+#include <arch/i686/sched.h>
 #include <arch/i686/pit.h>
 #include <arch/i686/key.h>
 #include <arch/i686/disk.h>
 #include <arch/i686/fat.h>
 #include <arch/i686/sys.h>
+#include <arch/i686/io.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -19,6 +21,7 @@ extern uint8_t __bss_start;
 extern uint8_t __bss_end;
 
 void HAL_Initialize(void* tags) {
+    i686_DisableInterrupts();
     memset(&__bss_start, 0, (uintptr_t)&__bss_end - (uintptr_t)&__bss_start);
 
     TAG_Start* startTag = (TAG_Start*)tags;
@@ -66,10 +69,13 @@ void HAL_Initialize(void* tags) {
     i686_IRQ_Initialize();
     i686_DEBUG_Debugf(LOG_DEBUG, "PIC Initialized.");       // PIC Initializes in conjunction with IRQ
     i686_DEBUG_Debugf(LOG_DEBUG, "IRQ Initialized.");
+    i686_SCHED_Initialize();
+    i686_DEBUG_Debugf(LOG_DEBUG, "Scheduler Initialized.");
     i686_PIT_Initialize();
     i686_DEBUG_Debugf(LOG_DEBUG, "PIT Initialized.");
     i686_KEY_Initialize();
     i686_DEBUG_Debugf(LOG_DEBUG, "Keyboard Initialized.");
+    i686_EnableInterrupts();
     DISK disk = i686_DISK_Initialize(disk_tag);
     i686_DEBUG_Debugf(LOG_DEBUG, "Disk Initialized.");
     if (!i686_FAT_Initialize(&disk)) {

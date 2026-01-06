@@ -4,10 +4,13 @@
 #include "sys.h"
 #include "isr.h"
 #include "fat.h"
+#include "io.h"
 #include "debug.h"
+#include "sched.h"
 #include <hal/vfs.h>
 
 enum { 
+    SYS_EXIT = 1, 
     SYS_READ = 3, 
     SYS_WRITE = 4, 
     SYS_OPEN = 5, 
@@ -36,9 +39,16 @@ enum linux_dirent_type {
 };
 
 void i686_SYS_Handler(Registers* regs) {
+    PREEMPT_DISABLE();
+    i686_EnableInterrupts();
     uint32_t syscall = regs->eax;
 
     switch (syscall) {
+        case SYS_EXIT: {
+            i686_SCHED_Exit(regs);
+            break;
+        }
+
         case SYS_READ: {
             int fd = regs->ebx;
             char* buf = (char*)regs->ecx;
@@ -88,6 +98,11 @@ void i686_SYS_Handler(Registers* regs) {
                 if (!i686_FAT_ReadEntry(fd, index, &entry))
                     break; // no more entries
 
+                if (entry.Attributes == 0x0F) {
+                    index++;
+                    continue;
+                }
+
                 i686_FAT_ExtractName(entry.FileName, namebuf);
                 size_t namelen = strlen(namebuf);
 
@@ -135,7 +150,6 @@ void i686_SYS_Handler(Registers* regs) {
             break;
         }
 
-
         case SYS_NANOSLEEP: {
             struct linux_timespec* req = (struct linux_timespec*)regs->ebx;
 
@@ -152,6 +166,8 @@ void i686_SYS_Handler(Registers* regs) {
             regs->eax = (uint32_t)-1;
             break;
     }
+    i686_DisableInterrupts();
+    PREEMPT_ENABLE();
 }
 
 void i686_SYS_Initialize() {

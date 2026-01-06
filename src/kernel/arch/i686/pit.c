@@ -1,6 +1,7 @@
 #include "pit.h"
 #include "irq.h"
 #include "disp.h"
+#include "sched.h"
 #include "io.h"
 
 #define PIT_COMMAND  0x43
@@ -21,6 +22,10 @@ void i686_PIT_Initialize() {
 void i686_PIT_Handler(Registers* regs) {
     ticks++;
     i686_DISP_ToggleCursor();
+
+    if (preempt_disable == 0) {
+        i686_SCHED_Schedule(regs);
+    }
 }
 
 void i686_PIT_Sleep(uint32_t ms) {
