@@ -1,4 +1,5 @@
-#include "arch/i686/disp.h"
+#include "disp.h"
+#include "spk.h"
 #include <util/font8x8.h>
 #include <string.h>
 #include <stdbool.h>
@@ -203,6 +204,11 @@ void i686_DISP_PutChar(char c) {
         drv_put_glyph(' ', cursor_x, cursor_y);
         if (cursor_x >= cw) cursor_x -= cw;
         drv_put_glyph(' ', cursor_x, cursor_y);
+        return;
+    }
+
+    if (c == '\a') {
+        i686_SPK_Beep(750, 125);  // F#5
         return;
     }
 

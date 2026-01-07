@@ -6,6 +6,7 @@
 #include <arch/i686/disp.h>
 #include <arch/i686/fat.h>
 #include <arch/i686/io.h>
+#include <arch/i686/pit.h>
 #include <arch/i686/sched.h>
 
 #define PROGRAM1_LOAD_ADDR  ((uint32_t)0x00200000)
@@ -35,7 +36,9 @@ void __attribute__((section(".entry"))) start(void* tags) {
 
     printf("Hello, world!\n");
 
+    VFS_Write(STDOUT, "\a", 1);
+
     // Add tasks here:
     load_and_add("/usr/prog.bin",  PROGRAM1_LOAD_ADDR);
-    // load_and_add("/usr/prog2.bin", PROGRAM2_LOAD_ADDR);
+    load_and_add("/usr/prog2.bin", PROGRAM2_LOAD_ADDR);
 }
