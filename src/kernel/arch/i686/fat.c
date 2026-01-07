@@ -86,7 +86,7 @@ void i686_FAT_ExtractName(const char fatName[11], char* out) {
     // --- convert and copy name part (first 8 chars)
     for (i = 0; i < 8 && fatName[i] != ' '; i++) {
         char c = fatName[i];
-        // if (c >= 'A' && c <= 'Z') c += 32; // tolower
+        if (c >= 'A' && c <= 'Z') c += 32; // tolower
         out[j++] = c;
     }
 
@@ -95,7 +95,7 @@ void i686_FAT_ExtractName(const char fatName[11], char* out) {
         out[j++] = '.';
         for (i = 8; i < 11 && fatName[i] != ' '; i++) {
             char c = fatName[i];
-            // if (c >= 'A' && c <= 'Z') c += 32; // tolower
+            if (c >= 'A' && c <= 'Z') c += 32; // tolower
             out[j++] = c;
         }
     }

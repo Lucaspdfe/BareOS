@@ -27,6 +27,8 @@ typedef struct FAT_File {
 } FAT_File;
 
 #define ATTR_DIRECTORY 0x10
+#define ATTR_VOLUME_ID 0x08
+
 
 // Public API
 FAT_File* i686_FAT_GetFileInfo(int fd);
