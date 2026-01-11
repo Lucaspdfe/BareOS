@@ -10,13 +10,14 @@ volatile uint32_t preempt_disable = 0;
 
 void idle() {
     for (;;) {
-        __asm__ volatile ("hlt"); 
+        __asm__ volatile ("hlt");
     }
 }
 
 void i686_SCHED_Initialize() {
     memset(tasks, 0, sizeof(tasks));
 
+    // Add task 0, will be replaced by kernel when PIT is ran.
     tasks[0].eip = (uint32_t)idle;
     tasks[0].cs  = 0x08;
     tasks[0].ds  = 0x10;

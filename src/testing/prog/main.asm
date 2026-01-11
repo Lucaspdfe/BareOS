@@ -1,4 +1,4 @@
-org 0x00200000
+org 0x00500000
 bits 32
 
 SYS_EXIT        equ 1

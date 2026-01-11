@@ -13,6 +13,7 @@
 #include <arch/i686/disk.h>
 #include <arch/i686/fat.h>
 #include <arch/i686/sys.h>
+#include <arch/i686/pag.h>
 #include <arch/i686/io.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -57,6 +58,8 @@ void HAL_Initialize(void* tags) {
     i686_DEBUG_Debugf(LOG_DEBUG, "DEBUG Initialized.");
     i686_ALO_Initialize();
     i686_DEBUG_Debugf(LOG_DEBUG, "Allocator Initialized.");
+    i686_PAG_Initialize(fb);
+    i686_DEBUG_Debugf(LOG_DEBUG, "Paging Initialized.");
     i686_DISP_Initialize(fb);
     i686_DISP_SetScale(1);
     i686_DEBUG_Debugf(LOG_DEBUG, "DISP Initialized.");

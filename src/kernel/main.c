@@ -9,10 +9,10 @@
 #include <arch/i686/pit.h>
 #include <arch/i686/sched.h>
 
-#define PROGRAM1_LOAD_ADDR  ((uint32_t)0x00200000)
-#define PROGRAM2_LOAD_ADDR  ((uint32_t)0x00210000)
+#define PROGRAM1_LOAD_ADDR  ((uint32_t)0x00500000)
+#define PROGRAM2_LOAD_ADDR  ((uint32_t)0x00510000)
 
-void load_and_add(const char* path, uint32_t load_addr) {
+void RunProgram(const char* path, uint32_t load_addr) {
     int fd = i686_FAT_Open(path);
     if (fd < 0) {
         printf("Failed to open %s\n", path);
@@ -31,14 +31,14 @@ void load_and_add(const char* path, uint32_t load_addr) {
     i686_EnableInterrupts();
 }
 
-void __attribute__((section(".entry"))) start(void* tags) {
+void kmain(void* tags) {
     HAL_Initialize(tags);
 
     printf("Hello, world!\n");
 
-    VFS_Write(STDOUT, "\a", 1);
+    VFS_Write(STDOUT, "\a", 1);         // Cool bell noise!!!
 
     // Add tasks here:
-    load_and_add("/usr/prog.bin",  PROGRAM1_LOAD_ADDR);
-    load_and_add("/usr/prog2.bin", PROGRAM2_LOAD_ADDR);
+    RunProgram("/usr/prog.bin",  PROGRAM1_LOAD_ADDR);
+    RunProgram("/usr/prog2.bin", PROGRAM2_LOAD_ADDR);
 }
