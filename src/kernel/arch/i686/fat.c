@@ -200,7 +200,7 @@ int i686_FAT_Open(const char* path) {
                 return fd;
             }
         }
-        return -1; // No free slot
+        return -1; // No free slot (EMFILE)
     }
 
     char pathCopy[128];
@@ -216,7 +216,7 @@ int i686_FAT_Open(const char* path) {
         to_fat_name(token, fatname);
 
         if (!FAT_FindInDirectory(currentCluster, fatname, &entry)) {
-            return -1; // not found
+            return -2; // not found (ENOENT)
         }
 
         if (entry.Attributes & ATTR_DIRECTORY) {
@@ -228,7 +228,7 @@ int i686_FAT_Open(const char* path) {
 
         // last component, must be file
         token = strtok(NULL, "/");
-        if (token) return -1; // something after file → invalid
+        if (token) return -3; // something after file → invalid (ENOTDIR)
     }
 
     // find free fd
@@ -241,19 +241,19 @@ int i686_FAT_Open(const char* path) {
             return fd;
         }
     }
-    return -1;
+    return -1;  // no free slot (EMFILE)
 }
 
 uint32_t i686_FAT_Read(int fd, void* buffer, uint32_t size) {
-    if (fd < 0 || fd >= MAX_OPEN_FILES) return 0;
+    if (fd < 0 || fd >= MAX_OPEN_FILES) return -1;
     FAT_File* file = &g_openFiles[fd];
-    if (!file->open) return 0;
+    if (!file->open) return -2;
 
     uint32_t clusterSector = g_dataStart + (file->currentCluster - 2) * g_bootSector.SectorsPerCluster;
     uint32_t toRead = (size > file->entry.Size ? file->entry.Size : size);
 
     if (!DISK_ReadSectors(g_disk, clusterSector, g_bootSector.SectorsPerCluster, buffer))
-        return 0;
+        return -3;
 
     file->currentOffset += toRead;
     return toRead;

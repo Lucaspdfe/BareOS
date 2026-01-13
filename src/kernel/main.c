@@ -33,6 +33,7 @@ void RunProgram(const char* path, uint32_t load_addr) {
 
 void kmain(void* tags) {
     HAL_Initialize(tags);
+    VFS_Initialize();
 
     printf("Hello, world!\n");
 

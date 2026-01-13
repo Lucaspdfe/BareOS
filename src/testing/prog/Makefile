@@ -1,4 +1,4 @@
-BUILD_DIR=build/
+BUILD_DIR=build
 
 .PHONY: all prog clean
 all: prog

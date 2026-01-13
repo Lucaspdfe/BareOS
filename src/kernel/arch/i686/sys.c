@@ -86,8 +86,7 @@ void i686_SYS_Handler(Registers* regs) {
 
         case SYS_CLOSE: {
             int fd = regs->ebx;
-            VFS_Close(fd);
-            regs->eax = 0;
+            regs->eax = VFS_Close(fd);
             break;
         }
 
