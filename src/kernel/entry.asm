@@ -9,7 +9,7 @@ start:
     pop eax         ; pop return address (not needed)
     pop eax         ; pop tags address
 
-    mov esp, 0x00300000
+    mov esp, 0x002FFFFF
     mov ebp, 0
 
     push eax

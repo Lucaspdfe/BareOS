@@ -30,8 +30,4 @@
 #define MEMORY_KERNEL_ADDR  ((void*)0x100000)
 
 #define PROGRAM_LOAD_ADDR  ((uint32_t)0x00200000)
-#define PROGRAM_STACK_TOP  ((uint32_t)0x0020F000)
-
-// 0x0020F000 - 0x004FFFFF - Free
-
-// 0x00500000 - 0x005FFFFF - Malloc
+#define PROGRAM_STACK_TOP  ((uint32_t)0x00300000)
