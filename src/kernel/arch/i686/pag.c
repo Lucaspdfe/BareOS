@@ -18,6 +18,12 @@ __attribute__((aligned(4096)))
 pte_t PageTable1[1024];   // user mapping
 
 __attribute__((aligned(4096)))
+pte_t PageTable3[1024];   // heap mapping
+
+__attribute__((aligned(4096)))
+pte_t PageTable4[1024];   // heap mapping
+
+__attribute__((aligned(4096)))
 pte_t PageTableFB[1024];  // framebuffer mapping
 
 void i686_PAG_Setup();
@@ -44,6 +50,33 @@ void i686_PAG_Initialize(TAG_FB* fb) {
 
     PageDirectory[0x00500000 >> 22] =
         ((uint32_t)PageTable1) | (PAGE_P | PAGE_RW | PAGE_US);
+
+    /* ================================
+       Heap identity mapping (4 MiB)
+       ================================ */
+
+    /* Clear heap page table */
+    for (int i = 0; i < 1024; i++) {
+        PageTable3[i] = 0;
+        PageTable4[i] = 0;
+    }
+
+    /* Identity-map entire PageTable2 */
+    uint32_t heap_base = 0x00C00000;  /* must be 4 MiB aligned */
+    uint32_t heap2_base = 0x01000000;  /* must be 4 MiB aligned */
+
+    for (int i = 0; i < 1024; i++) {
+        PageTable3[i] =
+            (heap_base + (i * 0x1000)) | (PAGE_P | PAGE_RW);
+        PageTable4[i] =
+            (heap2_base + (i * 0x1000)) | (PAGE_P | PAGE_RW);
+    }
+
+    /* Hook heap page table into page directory */
+    PageDirectory[heap_base >> 22] =
+        ((uint32_t)PageTable3) | (PAGE_P | PAGE_RW);
+    PageDirectory[heap2_base >> 22] =
+        ((uint32_t)PageTable4) | (PAGE_P | PAGE_RW);
 
     /* ================================
        Framebuffer identity mapping

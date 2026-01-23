@@ -12,8 +12,8 @@ Page pages[256];
 
 void i686_ALO_Initialize() {
     pages[0].isUsed = false;
-    pages[0].ptr    = (void*)0x00500000;
-    pages[0].size   = (size_t)0x000FFFFF;
+    pages[0].ptr    = (void*)0x00C00000;
+    pages[0].size   = (size_t)0x013FFFFF;
 }
 
 void* i686_ALO_Malloc(size_t size) {
