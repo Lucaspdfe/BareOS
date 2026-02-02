@@ -106,6 +106,7 @@ build_gcc() {
     ./contrib/download_prerequisites
 
     mkdir -p "$GCC_BUILD"
+    mkdir -p "$SYSROOT/usr/include"
     cd "$GCC_BUILD"
 
     "$GCC_SRC/configure" \
@@ -117,8 +118,8 @@ build_gcc() {
         --enable-languages=c,c++ \
         --without-headers
 
-    make -j"$JOBS" all-gcc all-target-libgcc
-    make install-gcc install-target-libgcc
+    make -j"$JOBS" all-gcc
+    make install-gcc
 }
 
 # ----------------------------
