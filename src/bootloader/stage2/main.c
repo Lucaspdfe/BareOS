@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 #include "stdio.h"
 #include "x86.h"
 #include "disk.h"
@@ -39,39 +40,6 @@ void __attribute__((cdecl)) start(uint16_t bootDrive)
     }
     FAT_Close(fd);
 
-    // --- Set graphics mode ---
-    const int desiredWidth = 1024, desiredHeight = 768, desiredBpp = 32;
-    uint16_t pickedMode = 0xFFFF;
-
-    VbeInfoBlock* info = (VbeInfoBlock*)MEMORY_VESA_INFO;
-    VbeModeInfo* modeInfo = (VbeModeInfo*)MEMORY_MODE_INFO;
-
-    if (VBE_GetControllerInfo(info)) {
-        uint16_t* mode = (uint16_t*)(info->VideoModePtr);
-        for (int i = 0; mode[i] != 0xFFFF; i++) {
-            if (!VBE_GetModeInfo(mode[i], modeInfo))
-                continue;
-
-            bool hasFB = (modeInfo->attributes & 0x90) == 0x90;
-            if (hasFB &&
-                modeInfo->width == desiredWidth &&
-                modeInfo->height == desiredHeight &&
-                modeInfo->bpp == desiredBpp) {
-                pickedMode = mode[i];
-                break;
-            }
-        }
-
-        if (pickedMode != 0xFFFF)
-            VBE_SetMode(pickedMode);
-
-        // No stage2 framebuffer drawing here; stage2 only sets up tags (including pitch and
-        // color mask/position) which the kernel will use to draw.
-    } else {
-        printf("No VBE extensions :(\n");
-        goto end;
-    }
-
     // --- Build tags in memory (array, no fixed addr) ---
     uint8_t tagBuffer[256];
     memset(tagBuffer, 0, sizeof(tagBuffer));
@@ -80,31 +48,16 @@ void __attribute__((cdecl)) start(uint16_t bootDrive)
     uint8_t* ptr = (uint8_t*)(tags + 1);
     tags->totalTags = 0;
 
-    // --- Framebuffer tag ---
-    TAG_FB* tag_fb = (TAG_FB*)ptr;
-    tag_fb->header.type = TAG_TYPE_FB;
-    tag_fb->header.size = sizeof(TAG_FB);
-    tag_fb->fb = (uint8_t*)modeInfo->framebuffer;
-    tag_fb->bpp = modeInfo->bpp;
-    tag_fb->width = modeInfo->width;
-    tag_fb->pitch = modeInfo->pitch;
-    tag_fb->height = modeInfo->height;
-    tag_fb->red_mask = modeInfo->red_mask;
-    tag_fb->red_position = modeInfo->red_position;
-    tag_fb->green_mask = modeInfo->green_mask;
-    tag_fb->green_position = modeInfo->green_position;
-    tag_fb->blue_mask = modeInfo->blue_mask;
-    tag_fb->blue_position = modeInfo->blue_position;
-    ptr += sizeof(TAG_FB);
-    tags->totalTags++;
-
     // --- Disk tag ---
+    uint8_t disk_count = 1;
+    size_t disk_tag_size = sizeof(TAG_DISK) + disk_count * sizeof(uint8_t);
+
     TAG_DISK* tag_disk = (TAG_DISK*)ptr;
     tag_disk->header.type = TAG_TYPE_DISK;
-    tag_disk->header.size = sizeof(TAG_DISK);
-    tag_disk->id = bootDrive;
-    tag_disk->type = 0x00; // 0x00 = floppy, 0x80 = HDD, etc.
-    ptr += sizeof(TAG_DISK);
+    tag_disk->header.size = disk_tag_size;
+    tag_disk->disks = disk_count;
+    tag_disk->id[0] = bootDrive;
+    ptr += disk_tag_size;
     tags->totalTags++;
 
     // --- End tag ---

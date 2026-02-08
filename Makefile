@@ -77,4 +77,5 @@ clean:
 
 # Run the current image on QEMU
 run:
-	./run
+	@echo "[*] Running the image in QEMU:"
+	@./run
