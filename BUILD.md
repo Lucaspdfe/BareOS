@@ -16,10 +16,11 @@ Build tools:
 
 * `sh`
 * `make`
-* `gcc` **or** `clang`
+* `gcc` and `g++` **or** `clang`
 * `ld`, `ar`, `ranlib`
 * `bison`
 * `flex`
+* `texinfo`
 * `python3` **or** `python`
 
 Archive / fetch tools:
@@ -35,7 +36,7 @@ Runtime / OS build tools:
 * `qemu-system-*`
 
 > Note
-> You **do not** need `libgmp`, `libmpfr`, `libmpc`, or `texinfo`.
+> You **do not** need `libgmp`, `libmpfr`, or `libmpc`.
 > GCC dependencies are downloaded and built automatically by the toolchain script.
 
 ---
