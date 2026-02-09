@@ -5,129 +5,98 @@ set -e
 # Configuration
 # ----------------------------
 
-ARCH="i686-elf"
-PREFIX="/opt/$ARCH-toolchain"
-SYSROOT="$PREFIX/$ARCH/sysroot"
+TARGET="i686-elf"
 
-BINUTILS_VERSION=2.42
-GCC_VERSION=13.3.0
+BINUTILS_VERSION="2.37"
+GCC_VERSION="11.2.0"
 
-JOBS=$(nproc)
+TOOLCHAIN_PREFIX="/opt/i686-elf-toolchain"
+export PATH="${TOOLCHAIN_PREFIX}/bin:${PATH}"
 
-export PATH="$PREFIX/bin:$PATH"
+BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VERSION}.tar.xz"
+GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.xz"
 
-WORKDIR="$PWD/toolchain"
+BINUTILS_SRC="toolchain/binutils-${BINUTILS_VERSION}"
+BINUTILS_BUILD="toolchain/binutils-build-${BINUTILS_VERSION}"
 
-BINUTILS_TAR="binutils-$BINUTILS_VERSION.tar.xz"
-GCC_TAR="gcc-$GCC_VERSION.tar.xz"
+GCC_SRC="toolchain/gcc-${GCC_VERSION}"
+GCC_BUILD="toolchain/gcc-build-${GCC_VERSION}"
 
-BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/$BINUTILS_TAR"
-GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/$GCC_TAR"
-
-BINUTILS_SRC="$WORKDIR/binutils-$BINUTILS_VERSION"
-BINUTILS_BUILD="$WORKDIR/binutils-build"
-
-GCC_SRC="$WORKDIR/gcc-$GCC_VERSION"
-GCC_BUILD="$WORKDIR/gcc-build"
-
-# ----------------------------
-# Host dependency checks
-# ----------------------------
-
-require() {
-    command -v "$1" >/dev/null 2>&1 || {
-        echo "Error: required tool '$1' not found in PATH"
-        exit 1
-    }
-}
-
-# Base build tools
-require sh
-require make
-require gcc || require clang
-require ld
-require ar
-require ranlib
-
-# Archive / fetch tools
-require tar
-require xz
-require wget
-
-# Misc tools used by GCC/binutils
-require sed
-require awk
-require grep
-require bison
-require flex
-require python3 || require python
-
-# ----------------------------
-# Fetch
-# ----------------------------
-
-fetch() {
-    mkdir -p "$WORKDIR"
-    cd "$WORKDIR"
-
-    [ -f "$BINUTILS_TAR" ] || wget "$BINUTILS_URL"
-    [ -f "$GCC_TAR" ] || wget "$GCC_URL"
-}
+JOBS=8
 
 # ----------------------------
 # Binutils
 # ----------------------------
 
 build_binutils() {
-    tar -xf "$WORKDIR/$BINUTILS_TAR" -C "$WORKDIR"
+    mkdir -p toolchain
+    cd toolchain
 
-    mkdir -p "$BINUTILS_BUILD"
-    cd "$BINUTILS_BUILD"
+    if [ ! -f "binutils-${BINUTILS_VERSION}.tar.xz" ]; then
+        wget "${BINUTILS_URL}"
+    fi
 
-    "$BINUTILS_SRC/configure" \
-        --target="$ARCH" \
-        --prefix="$PREFIX" \
-        --with-sysroot="$SYSROOT" \
-        --disable-nls \
-        --disable-werror
+    tar -xf "binutils-${BINUTILS_VERSION}.tar.xz"
 
-    make -j"$JOBS"
+    mkdir -p "../${BINUTILS_BUILD}"
+    cd "../${BINUTILS_BUILD}"
+
+    CFLAGS= ASMFLAGS= CC= CXX= LD= ASM= LINKFLAGS= LIBS= \
+        ../binutils-${BINUTILS_VERSION}/configure \
+            --prefix="${TOOLCHAIN_PREFIX}" \
+            --target="${TARGET}" \
+            --with-sysroot \
+            --disable-nls \
+            --disable-werror
+
+    make -j"${JOBS}"
     make install
 }
 
 # ----------------------------
-# GCC (bootstrap)
+# GCC
 # ----------------------------
 
 build_gcc() {
-    tar -xf "$WORKDIR/$GCC_TAR" -C "$WORKDIR"
+    mkdir -p toolchain
+    cd toolchain
 
-    cd "$GCC_SRC"
+    if [ ! -f "gcc-${GCC_VERSION}.tar.xz" ]; then
+        wget "${GCC_URL}"
+    fi
+
+    tar -xf "gcc-${GCC_VERSION}.tar.xz"
+
+    # ---- GMP / MPFR / MPC ----
+    cd "gcc-${GCC_VERSION}"
     ./contrib/download_prerequisites
+    cd ..
 
-    mkdir -p "$GCC_BUILD"
-    mkdir -p "$SYSROOT/usr/include"
-    cd "$GCC_BUILD"
+    mkdir -p "../${GCC_BUILD}"
+    cd "../${GCC_BUILD}"
 
-    "$GCC_SRC/configure" \
-        --target="$ARCH" \
-        --prefix="$PREFIX" \
-        --with-sysroot="$SYSROOT" \
-        --disable-nls \
-        --disable-multilib \
-        --enable-languages=c,c++ \
-        --without-headers
+    CFLAGS= ASMFLAGS= CC= CXX= LD= ASM= LINKFLAGS= LIBS= \
+        ../gcc-${GCC_VERSION}/configure \
+            --prefix="${TOOLCHAIN_PREFIX}" \
+            --target="${TARGET}" \
+            --disable-nls \
+            --enable-languages=c,c++ \
+            --without-headers
 
-    make -j"$JOBS" all-gcc
-    make install-gcc
+    make -j"${JOBS}" all-gcc all-target-libgcc
+    make install-gcc install-target-libgcc
 }
 
 # ----------------------------
 # Clean
 # ----------------------------
 
-clean() {
-    rm -rf "$WORKDIR"
+clean_toolchain() {
+    rm -rf "${GCC_BUILD}" "${GCC_SRC}" "${BINUTILS_BUILD}" "${BINUTILS_SRC}"
+}
+
+clean_toolchain_all() {
+    rm -rf toolchain/*
 }
 
 # ----------------------------
@@ -135,27 +104,24 @@ clean() {
 # ----------------------------
 
 case "$1" in
-    fetch)
-        fetch
+    toolchain)
+        build_binutils
+        build_gcc
         ;;
     binutils)
-        fetch
         build_binutils
         ;;
     gcc)
-        fetch
-        build_gcc
-        ;;
-    toolchain)
-        fetch
-        build_binutils
         build_gcc
         ;;
     clean)
-        clean
+        clean_toolchain
+        ;;
+    clean-all)
+        clean_toolchain_all
         ;;
     *)
-        echo "Usage: $0 {fetch|binutils|gcc|toolchain|clean}"
+        echo "Usage: $0 {toolchain|binutils|gcc|clean|clean-all}"
         exit 1
         ;;
 esac
