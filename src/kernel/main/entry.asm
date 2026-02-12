@@ -8,8 +8,6 @@ extern kmain
 global start
 
 start:
-    cli
-
     mov esp, 0x00300000
     mov ebp, 0
 

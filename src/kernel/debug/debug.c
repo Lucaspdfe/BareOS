@@ -38,11 +38,11 @@ static const char* log_name[] = {
     "DEBUG"
 };
 
-static inline int serial_tx_ready(void) {
+static inline int SERIAL_TXReady(void) {
     return inb(COM1 + 5) & 0x20;
 }
 
-void serial_init(void) {
+void SERIAL_Initialize(void) {
     outb(COM1 + 1, 0x00);
     outb(COM1 + 3, 0x80);
     outb(COM1 + 0, 0x03);
@@ -52,17 +52,17 @@ void serial_init(void) {
     outb(COM1 + 4, 0x0B);
 }
 
-void serial_putc(char c) {
-    while (!serial_tx_ready())
+void SERIAL_Putc(char c) {
+    while (!SERIAL_TXReady())
         ;
     outb(COM1, (uint8_t)c);
 }
 
-void serial_write(const char* s) {
+void SERIAL_Write(const char* s) {
     while (*s) {
         if (*s == '\n')
-            serial_putc('\r');
-        serial_putc(*s++);
+            SERIAL_Putc('\r');
+        SERIAL_Putc(*s++);
     }
 }
 
@@ -74,11 +74,11 @@ void log_printf(log_level_t level, const char* fmt, ...) {
     vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
 
-    serial_write(log_color[level]);
-    serial_write("[");
-    serial_write(log_name[level]);
-    serial_write("] ");
-    serial_write(buf);
-    serial_write("\n");
-    serial_write(ANSI_RESET);
+    SERIAL_Write(log_color[level]);
+    SERIAL_Write("[");
+    SERIAL_Write(log_name[level]);
+    SERIAL_Write("] ");
+    SERIAL_Write(buf);
+    SERIAL_Write("\n");
+    SERIAL_Write(ANSI_RESET);
 }

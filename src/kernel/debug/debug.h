@@ -11,9 +11,9 @@ typedef enum {
 } log_level_t;
 
 /* serial */
-void serial_init(void);
-void serial_putc(char c);
-void serial_write(const char* s);
+void SERIAL_Initialize(void);
+void SERIAL_Putc(char c);
+void SERIAL_Write(const char* s);
 
 /* logging */
 void log_printf(log_level_t level, const char* fmt, ...);
