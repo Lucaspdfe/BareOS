@@ -18,3 +18,9 @@ static inline void outb(uint16_t port, uint8_t value) {
         : "a"(value), "Nd"(port)
     );
 }
+
+static inline void Panic() {
+    __asm__ volatile (
+        "cli; hlt"
+    );
+}

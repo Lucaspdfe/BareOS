@@ -15,5 +15,7 @@ start:
 
     call kmain
 
+    int 0x80
+
     cli
     hlt
