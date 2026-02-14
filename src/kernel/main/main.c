@@ -26,10 +26,10 @@ void kmain() {
 
     char buffer[256]; ID_CPUName(buffer);
     log_printf(LOG_INFO, "CPU Name: %s", buffer);
-    
+
     uint32_t sec, min, hour, day, month, year;
     CMOS_RTCRead(&sec, &min, &hour, &day, &month, &year);
-    hour -= 3;                                              // UTC-3 time
+    if (hour > 12) hour -= 12;
     log_printf(LOG_INFO, "Time: %02d:%02d:%02d, %02d/%02d/%04d", hour, min, sec, day, month, year);
 
     printf("Hello, world!\n");

@@ -1,1 +1,1 @@
-qemu-system-x86_64 -fda build/flp.img -serial stdio -machine pcspk-audiodev=snd0 -audiodev alsa,id=snd0 -enable-kvm -cpu host
+qemu-system-x86_64 -fda build/flp.img -serial stdio -machine pcspk-audiodev=snd0 -audiodev alsa,id=snd0 -enable-kvm -cpu host -rtc base=localtime
