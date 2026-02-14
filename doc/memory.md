@@ -12,7 +12,7 @@ This is the place where i put every address in memory.
 0x000C8000 --> 0x000FFFFF - BIOS                         |
 0x00100000 --> 0x001FFFFF - Free                         |
 0x00200000 --> 0x0020FFFF - Kernel                       |
-0x00210000 --> 0x002FFFFF - Kernel Stack                -| 
+0x00210000 --> 0x002FFFFF - Kernel Stack                -|
 
 0x00400000 --> 0x004FFFFF - Free                        -|
 0x00500000 --> 0x0050FFFF - Program1                     |- PageTable1

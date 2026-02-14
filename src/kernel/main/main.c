@@ -3,6 +3,8 @@
 #include "../cpu/gdt.h"
 #include "../cpu/idt.h"
 #include "../cpu/isr.h"
+#include "../cpu/id.h"
+#include <stdbool.h>
 
 void Trigger() {
     printf("int 0x80 triggered!!!");
@@ -14,10 +16,12 @@ void kmain() {
     ISR_Initialize();
     ISR_RegisterHandler(0x80, Trigger);
     SERIAL_Initialize();
-    log_printf(LOG_DEBUG, "Debug log!!");
-    log_printf(LOG_INFO,  "Info  log!!");
-    log_printf(LOG_WARN,  "Warn  log!!");
-    log_printf(LOG_ERROR, "Error log!!");
-    log_printf(LOG_PANIC, "Panic log!!");
+    bool cpuid = ID_CheckSupported();
+    log_printf(cpuid ? LOG_INFO : LOG_WARN, "CPUID Support: %s", cpuid ? "True" : "False");
+    bool apic = ID_APICSupport();
+    log_printf(apic ? LOG_INFO : LOG_WARN, "APIC Support: %s", apic ? "True" : "False");
+    char buffer[256]; ID_CPUName(buffer);
+    log_printf(LOG_INFO, "CPU Name: %s", buffer);
     printf("Hello, world!\n");
+    __asm("int $0x80");
 }
