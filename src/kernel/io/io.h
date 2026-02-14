@@ -24,3 +24,19 @@ static inline void Panic() {
         "cli; hlt"
     );
 }
+
+static inline void IOWait() {
+    outb(0x80, 0);
+}
+
+static inline void EnableInterrupts() {
+    __asm__ volatile (
+        "sti"
+    );
+}
+
+static inline void DisableInterrupts() {
+    __asm__ volatile (
+        "cli"
+    );
+}

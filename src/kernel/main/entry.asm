@@ -15,5 +15,5 @@ start:
 
     call kmain
 
-    cli
     hlt
+    jmp $-1
