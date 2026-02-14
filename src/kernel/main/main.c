@@ -5,17 +5,11 @@
 #include "../cpu/isr.h"
 #include "../cpu/pic.h"
 #include "../cpu/irq.h"
+#include "../cpu/pit.h"
 #include "../cpu/id.h"
 #include "../cpu/cmos.h"
+#include "../cpu/acpi.h"
 #include <stdbool.h>
-
-void timer() {
-    putc('.');
-}
-
-void Int0x80() {
-    puts("Int 0x80 Triggered!\n");
-}
 
 void kmain() {
     printf("Hello, world!\n");
@@ -23,12 +17,9 @@ void kmain() {
     IDT_Initialize();
     ISR_Initialize();
     IRQ_Initialize();
+    PIT_Initialize();
+    ACPI_Initialize();
     SERIAL_Initialize();
-
-    ISR_RegisterHandler(0x80, Int0x80);
-    __asm("int $0x80");
-
-    IRQ_RegisterHandler(0, timer);
 
     bool cpuid = ID_CheckSupported();
     log_printf(cpuid ? LOG_INFO : LOG_WARN, "CPUID Support: %s", cpuid ? "True" : "False");
@@ -44,4 +35,6 @@ void kmain() {
     if (hour > 12) hour -= 12;
     log_printf(LOG_INFO, "Time: %02d:%02d:%02d, %02d/%02d/%04d", hour, min, sec, day, month, year);
 
+    PIT_Sleep(5000);
+    ACPI_PowerOff();
 }
