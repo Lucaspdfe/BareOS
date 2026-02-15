@@ -35,6 +35,21 @@ void kmain() {
     if (hour > 12) hour -= 12;
     log_printf(LOG_INFO, "Time: %02d:%02d:%02d, %02d/%02d/%04d", hour, min, sec, day, month, year);
 
-    PIT_Sleep(5000);
+    printf("Shutting off in 5...");
+    SERIAL_Write("[INFO ] Shutting off in 5...");
+    PIT_Sleep(1000);
+    printf("\b\b\b\b4...");
+    SERIAL_Write("\b\b\b\b4...");
+    PIT_Sleep(1000);
+    printf("\b\b\b\b3...");
+    SERIAL_Write("\b\b\b\b3...");   
+    PIT_Sleep(1000);
+    printf("\b\b\b\b2...");
+    SERIAL_Write("\b\b\b\b2...");
+    PIT_Sleep(1000);
+    printf("\b\b\b\b1...\n");
+    SERIAL_Write("\b\b\b\b1...");
+    PIT_Sleep(1000);
+    SERIAL_Putc('\n');
     ACPI_PowerOff();
 }
