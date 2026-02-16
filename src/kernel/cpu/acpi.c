@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <debug/debug.h>
 
 #define SLP_EN (1 << 13)
 #define SCI_EN 1
@@ -256,6 +257,10 @@ static int ACPI_GetS5(uint16_t* slp_typ) {
 void ACPI_Initialize() {
 
     ACPI_SearchForRSDP();
+    if (!rsdp) {
+        log_printf(LOG_WARN, "ACPI RSDP not found");
+        return;
+    }
     ACPI_FindFADT();
 }
 
