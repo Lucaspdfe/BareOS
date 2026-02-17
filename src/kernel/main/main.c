@@ -47,7 +47,7 @@ void kmain(uint8_t bootDrive) {
     DISK_Initialize(bootDrive, &disk);
     log_printf(LOG_INFO, "Disk %d: %d Cylinders, %d Heads, %d Sectors", disk.driveNumber, disk.maxCylinders, disk.maxHeads, disk.maxSectors);
     uint8_t buffer512[512];
-    DISK_Seek(&disk, 91);
+    DISK_Seek(&disk, 0);
     DISK_ReadSectors(&disk, 1, buffer512);
     log_printf(LOG_INFO, "First sector of disk %d: %02X %02X %02X %02X ...", disk.driveNumber, buffer512[0], buffer512[1], buffer512[2], buffer512[3]);
 
