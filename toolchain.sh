@@ -8,7 +8,7 @@ set -e
 TARGET="i686-elf"
 
 BINUTILS_VERSION="2.37"
-GCC_VERSION="11.2.0"
+GCC_VERSION="16.1.0"
 
 TOOLCHAIN_PREFIX="/opt/i686-elf-toolchain"
 export PATH="${TOOLCHAIN_PREFIX}/bin:${PATH}"
